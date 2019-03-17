@@ -1,1 +1,2 @@
 def constructShape(edge):
+    pass

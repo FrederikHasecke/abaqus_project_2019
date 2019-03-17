@@ -2,10 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1ed11ddd-8e3b-410f-9651-4bcacb35dc33" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/utilities/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/square.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/utilities/shapeSquare.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/shapeSquare.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -18,8 +16,13 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-850">
-              <caret line="10" column="18" lean-forward="true" selection-start-line="10" selection-start-column="18" selection-end-line="10" selection-end-column="18" />
+            <state relative-caret-position="573">
+              <caret line="962" column="78" lean-forward="true" selection-start-line="962" selection-start-column="78" selection-end-line="962" selection-end-column="78" />
+              <folding>
+                <element signature="e#0#20#0" expanded="true" />
+                <element signature="e#2367#2896#0" />
+                <element signature="e#4125#75526#0" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -28,7 +31,7 @@
         <entry file="file://$PROJECT_DIR$/utilities/shapeSquare.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
-              <caret line="1" selection-start-line="1" selection-end-line="1" />
+              <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -156,14 +159,19 @@
     <entry file="file://$PROJECT_DIR$/utilities/shapeSquare.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
-          <caret line="1" selection-start-line="1" selection-end-line="1" />
+          <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-850">
-          <caret line="10" column="18" lean-forward="true" selection-start-line="10" selection-start-column="18" selection-end-line="10" selection-end-column="18" />
+        <state relative-caret-position="573">
+          <caret line="962" column="78" lean-forward="true" selection-start-line="962" selection-start-column="78" selection-end-line="962" selection-end-column="78" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#2367#2896#0" />
+            <element signature="e#4125#75526#0" />
+          </folding>
         </state>
       </provider>
     </entry>

@@ -42,17 +42,20 @@ def main():
     create_structure(structure, edge)
 
     # Third User Input:
+    # Material. The user can decide between elastic or hyperelastic Mooney-Rivlin models and enter
+    # any desired material values. Values for the most common materials are provided in the accompanying documentation
+    model, young_modulus, poisson_rate, c10, c01, d1 = select_material()
+
+    # Create the choosen Material
+    create_material(model, young_modulus, poisson_rate, c10, c01, d1)
+
+    # Fourth User Input:
     # Beam Section. The user can pick between the provided standard beam sections
     # A second getInputs window will open after the selection for the provided variables of the cross sections
     # There is an additional condition which prevents the beam section to be too large and to overlap at areas which
     # are not supposed to overlap. This is not visible in the visualization but unphysical conditions are not desired.
     # You can find additional information in the documentation attached to this code
-    #section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, I = select_cross_section()
-
-    # Forth User Input:
-    # Material. The user can decide between elastic or hyperelastic Mooney-Rivlin models and enter
-    # any desired material values. Values for the most common materials are provided in the accompanying documentation
-    #mode, young_modulus, poisson_rate, c10, c01, d1 = select_material()
+    section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, I = select_cross_section(edge)
 
     # Fifth User Input:
     # Loading Conditions. The User can choose between uniaxial and shear loading as well as decide the provided force
@@ -129,9 +132,115 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
 
     if structure == 'b':
-        pass
+        s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
+                                                    sheetSize=200.0)
+        g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
+        s.setPrimaryObject(option=STANDALONE)
+        s.Spot(point=(5.0, 15.0))
+        s.Spot(point=(10.0, 10.0))
+        s.Spot(point=(10.0, 5.0))
+        s.Spot(point=(15.0, 15.0))
+        s.Spot(point=(15.0, 20.0))
+        s.Spot(point=(10.0, 25.0))
+        s.Spot(point=(5.0, 20.0))
+        s.Line(point1=(5.0, 20.0), point2=(10.0, 25.0))
+        s.Line(point1=(10.0, 25.0), point2=(15.0, 20.0))
+        s.PerpendicularConstraint(entity1=g[2], entity2=g[3], addUndoState=False)
+        s.Line(point1=(15.0, 20.0), point2=(15.0, 15.0))
+        s.VerticalConstraint(entity=g[4], addUndoState=False)
+        s.Line(point1=(15.0, 15.0), point2=(10.0, 10.0))
+        s.Line(point1=(10.0, 10.0), point2=(10.0, 5.0))
+        s.VerticalConstraint(entity=g[6], addUndoState=False)
+        s.Line(point1=(5.0, 15.0), point2=(10.0, 10.0))
+        s.AngularDimension(line1=g[2], line2=g[3], textPoint=(9.71992492675781,
+                                                              20.7295341491699), value=120.0)
+        s.delete(objectList=(c[10],))
+        s.AngularDimension(line1=g[3], line2=g[4], textPoint=(11.8052291870117,
+                                                              18.4535140991211), value=120.0)
+        s.AngularDimension(line1=g[5], line2=g[4], textPoint=(12.1310577392578,
+                                                              16.047435760498), value=120.0)
+        s.AngularDimension(line1=g[5], line2=g[7], textPoint=(10.3064155578613,
+                                                              12.9910669326782), value=120.0)
+        s.ObliqueDimension(vertex1=v[7], vertex2=v[8], textPoint=(3.5291748046875,
+                                                                  23.9159622192383), value=edge)
+        s.ObliqueDimension(vertex1=v[9], vertex2=v[10], textPoint=(14.9331855773926,
+                                                                   24.1110496520996), value=edge)
+        s.ObliqueDimension(vertex1=v[11], vertex2=v[12], textPoint=(19.2992935180664,
+                                                                    16.5676689147949), value=edge)
+        s.ObliqueDimension(vertex1=v[13], vertex2=v[14], textPoint=(14.4770278930664,
+                                                                    8.89422988891602), value=edge)
+        s.ObliqueDimension(vertex1=v[17], vertex2=v[18], textPoint=(5.67964553833008,
+                                                                    9.93469715118408), value=edge)
+        s.ObliqueDimension(vertex1=v[15], vertex2=v[16], textPoint=(8.80760192871094,
+                                                                    7.26850128173828), value=edge)
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.BaseWire(sketch=s)
+        s.unsetPrimaryObject()
+        p = mdb.models['Model-1'].parts['Part-1']
+        session.viewports['Viewport: 1'].setValues(displayedObject=p)
+        del mdb.models['Model-1'].sketches['__profile__']
+
+
     if structure == 'c':
-        pass
+        s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
+                                                    sheetSize=200.0)
+        g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
+        s.setPrimaryObject(option=STANDALONE)
+        s.Spot(point=(10.0, 0.0))
+        s.Spot(point=(0.0, 15.0))
+        s.Spot(point=(20.0, 15.0))
+        s.Spot(point=(10.0, 30.0))
+        s.Spot(point=(0.0, 30.0))
+        s.Spot(point=(20.0, 30.0))
+        s.Line(point1=(0.0, 30.0), point2=(10.0, 30.0))
+        s.HorizontalConstraint(entity=g[2], addUndoState=False)
+        s.Line(point1=(10.0, 30.0), point2=(20.0, 15.0))
+        s.Line(point1=(20.0, 15.0), point2=(10.0, 0.0))
+        s.Line(point1=(10.0, 0.0), point2=(0.0, 15.0))
+        s.Line(point1=(0.0, 15.0), point2=(10.0, 30.0))
+        s.Line(point1=(10.0, 30.0), point2=(20.0, 30.0))
+        s.HorizontalConstraint(entity=g[7], addUndoState=False)
+        s.Line(point1=(0.0, 15.0), point2=(20.0, 15.0))
+        s.HorizontalConstraint(entity=g[8], addUndoState=False)
+        s.ParallelConstraint(entity1=g[7], entity2=g[8])
+        s.ParallelConstraint(entity1=g[8], entity2=g[2], addUndoState=False)
+        s.ParallelConstraint(entity1=g[5], entity2=g[3])
+        s.ParallelConstraint(entity1=g[6], entity2=g[4])
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=181.281,
+                                                        farPlane=195.843, width=80.3786, height=33.8403,
+                                                        cameraPosition=(
+                                                            5.95156, 5.88341, 188.562),
+                                                        cameraTarget=(5.95156, 5.88341, 0))
+        s.AngularDimension(line1=g[5], line2=g[4], textPoint=(10.8604125976563,
+                                                              10.0025482177734), value=60.0)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=181.281,
+                                                        farPlane=195.843, width=90.9672, height=38.2982,
+                                                        cameraPosition=(
+                                                            5.23814, 5.22391, 188.562),
+                                                        cameraTarget=(5.23814, 5.22391, 0))
+        s.AngularDimension(line1=g[5], line2=g[8], textPoint=(6.06251096725464,
+                                                              11.0331859588623), value=60.0)
+        s.ObliqueDimension(vertex1=v[18], vertex2=v[19], textPoint=(12.1556587219238,
+                                                                    9.52707672119141), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.424,
+                                                        farPlane=189.7, width=12.5596, height=5.28773, cameraPosition=(
+                0.238087, 15.0835, 188.562), cameraTarget=(0.238087, 15.0835, 0))
+        s.ObliqueDimension(vertex1=v[6], vertex2=v[7], textPoint=(-0.598231256008148,
+                                                                  16.3410797119141), value=0.5*edge)
+        s.ObliqueDimension(vertex1=v[16], vertex2=v[17], textPoint=(0.361802160739899,
+                                                                    16.420295715332), value=0.5*edge)
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.BaseWire(sketch=s)
+        s.unsetPrimaryObject()
+        p = mdb.models['Model-1'].parts['Part-1']
+        session.viewports['Viewport: 1'].setValues(displayedObject=p)
+        del mdb.models['Model-1'].sketches['__profile__']
+
+
     if structure == 'd':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -786,7 +895,7 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
-
+    # TODO create j: Mapple Leaf Structure
     if structure == 'j':
         getWarningReply('The chosen strucutre is not yet available.\n'
                         'Please choose one of the following structures: \n'
@@ -794,7 +903,7 @@ def create_structure(structure, edge):
                         , buttons=(YES,))
         main()
 
-
+    # TODO create k: SHD Structure
     if structure == 'k':
         getWarningReply('The chosen strucutre is not yet available.\n'
                         'Please choose one of the following structures: \n'
@@ -803,12 +912,100 @@ def create_structure(structure, edge):
         main()
 
 
-def select_cross_section():
+#mode, young_modulus, poisson_rate, c10, c01, d1 = select_material()
+
+def select_material():
+    # TODO this is fucking ugly, change!
+    young_modulus = None
+    poisson_rate = None
+    c10 = None
+    c01 = None
+    d1 = None
+    try:
+        model = str(getInput("You can choose from the following material models\n"
+                               "'linear', 'nonlinear'\n"
+                               "Please enter the desired material model: ")).lower()
+        if model == 'linear':
+            fields = (('Young Modulus [MPa]:', '210000'), ('Poisson Rate:', '0.3'))
+            young_modulus, poisson_rate = getInputs(fields=fields, label='Specify Material dimensions:',
+                                                    dialogTitle='Create Material', )
+
+        elif model == 'nonlinear':
+            fields = (('c10 [MPa]:', '0.3339'), ('c01 [MPa]:', '-0.000337'), ('d1:', '0.0015828'))
+            c10, c01, d1 = getInputs(fields=fields, label='Specify Material dimensions:',
+                                                    dialogTitle='Create Material', )
+
+        else:
+            getWarningReply('The chosen value is not available.\n'
+                            'Please choose one of the following material models: \n'
+                            "'linear', 'nonlinear'\n"
+                            , buttons=(YES,))
+            section = select_material()
+
+    except:
+        getWarningReply('The chosen value is not available.\n'
+                        'Please choose one of the following material models: \n'
+                        "'linear', 'nonlinear'\n"
+                        , buttons=(YES,))
+        section = select_material()
+
+    return model, young_modulus, poisson_rate, c10, c01, d1
+
+def create_material(model, young_modulus, poisson_rate, c10, c01, d1):
+    if model == 'linear':
+        mdb.models['Model-1'].Material(name='Material-1')
+        mdb.models['Model-1'].materials['Material-1'].Elastic(table=((float(young_modulus), float(poisson_rate)),))
+
+    elif model == 'nonlinear':
+        mdb.models['Model-1'].Material(name='Material-1')
+        mdb.models['Model-1'].materials['Material-1'].Hyperelastic(
+            materialType=ISOTROPIC, testData=OFF, type=MOONEY_RIVLIN,
+            moduliTimeScale=INSTANTANEOUS, volumetricResponse=VOLUMETRIC_DATA,
+            table=((float(c10), float(c01), float(d1)),))
+
+
+
+# section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, I = select_cross_section()
+
+def select_cross_section(edge):
+    # TODO this is fucking ugly, change!
     possible_sections = ['box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'i', 'l', 't']
+    section = None
+    width = None
+    width_2 = None
+    height = None
+    radius = None
+    c = None
+    d = None
+    thickness = None
+    thickness_2 = None
+    thickness_3 = None
+    I = None
+
     try:
         section = str(getInput("You can choose from the following cross sections\n"
                                "'box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'I', 'L', 'T'\n"
                                "Please enter the desired cross section profile: ")).lower()
+
+        if section == 'box':
+            fields = (('Width [mm]:', '5'), ('Poisson Rate:', '0.3'))
+            young_modulus, poisson_rate = getInputs(fields=fields, label='Specify Material dimensions:',
+                                                    dialogTitle='Create Material', )
+            if float(thickness) <= float(width)/2.0 and float(thickness) <= float(height)/2.0:
+                if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
+                    pass
+            else:
+                getWarningReply('The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
+                                'AND\n'
+                                'The width and height MUST NOT be greater than the edge length divided by three\n'
+                                'Therefore:\n'
+                                'Max width/height: ', float(edge)/3.0,'\n',
+                                'Max thickness: ', float(width)/2.0,'\n',
+                                'Please choose the length, width and thickness according to this.\n'
+                                , buttons=(YES,))
+                section = select_material()
+
+
     except:
         getWarningReply('The chosen value is not available.\n'
                         'Please choose one of the following sections: \n'
@@ -819,5 +1016,5 @@ def select_cross_section():
 if __name__ == "__main__":
     main()
 else:
-    print("Please run main.py in the Abaqus CAE scripting interface")
+    print("Please run main.py via Abaqus CAE by using 'File > Run Script... > main.py'")
 
