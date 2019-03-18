@@ -20,12 +20,12 @@ import displayGroupOdbToolset as dgo
 import connectorBehavior
 
 import os
-workdir = "H:/Abaqus Files/abaqus_project_2019"
-os.chdir(workdir)
+#workdir = "H:/Abaqus Files/abaqus_project_2019"
+#os.chdir(workdir)
 
 # Import sub modules for the different lattices
 #H:\Abaqus Files\abaqus_project_2019\utilities
-from utilities import shapeSquare
+#from utilities import shapeSquare
 
 def main():
     # First user input:
@@ -55,7 +55,19 @@ def main():
     # There is an additional condition which prevents the beam section to be too large and to overlap at areas which
     # are not supposed to overlap. This is not visible in the visualization but unphysical conditions are not desired.
     # You can find additional information in the documentation attached to this code
-    section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, I = select_cross_section(edge)
+    section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i = select_cross_section(edge, structure)
+
+    # Create the choosen Cross section and assign it to the structure
+    create_cross_section(section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i)
+
+    # Create the mesh for the FEA
+    create_mesh(edge)
+
+    # Create the assembly
+    create_assembly()
+
+    # Create the step
+    create_step()
 
     # Fifth User Input:
     # Loading Conditions. The User can choose between uniaxial and shear loading as well as decide the provided force
@@ -95,7 +107,6 @@ def select_edge_length(structure):
                         ' Please choose a value larger than Zero.', buttons=(YES,))
         edge_length = select_edge_length()
     return edge_length
-
 
 def create_structure(structure, edge):
     # Create a bunch of if statements to create the corresponing structure.
@@ -182,7 +193,6 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
-
     if structure == 'c':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -240,7 +250,6 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
-
     if structure == 'd':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -296,7 +305,6 @@ def create_structure(structure, edge):
         p = mdb.models['Model-1'].parts['Part-1']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
 
-
     if structure == 'e':
         session.viewports['Viewport: 1'].setValues(displayedObject=None)
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
@@ -313,14 +321,6 @@ def create_structure(structure, edge):
         s.Line(point1=(46.25, 27.5), point2=(43.75, 27.5))
         s.HorizontalConstraint(entity=g[4], addUndoState=False)
         s.Line(point1=(43.75, 27.5), point2=(45.0, 25.0))
-        s.AngularDimension(line1=g[4], line2=g[5], textPoint=(44.3024673461914,
-                                                              27.1297302246094), value=60.0)
-        s.AngularDimension(line1=g[3], line2=g[4], textPoint=(45.5373764038086,
-                                                              27.1297302246094), value=60.0)
-        s.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(44.8835983276367,
-                                                                  28.2653980255127), value=edge)
-        s.ObliqueDimension(vertex1=v[4], vertex2=v[5], textPoint=(44.5842170715332,
-                                                                  25.7109546661377), value=edge)
         s.Spot(point=(42.8706321716309, 27.8417129516602))
         s.Spot(point=(42.4985046386719, 28.6266059875488))
         s.Spot(point=(42.5154190063477, 29.3355407714844))
@@ -330,6 +330,52 @@ def create_structure(structure, edge):
                                                                     28.6266059875488))
         s.Line(point1=(42.4985046386719, 28.6266059875488), point2=(42.5154190063477,
                                                                     29.3355407714844))
+        s.Spot(point=(42.2363243103027, 27.9936275482178))
+        s.Line(point1=(42.2363243103027, 27.9936275482178), point2=(42.6905989232415,
+                                                                    28.0))
+        s.Spot(point=(45.3824920654297, 27.765754699707))
+        s.Spot(point=(45.8983955383301, 28.3734149932861))
+        s.Spot(point=(45.8645668029785, 27.5041236877441))
+        s.Line(point1=(45.8983955383301, 28.3734149932861), point2=(45.3824920654297,
+                                                                    27.765754699707))
+        s.Line(point1=(45.3824920654297, 27.765754699707), point2=(44.5566243270259,
+                                                                   27.5))
+        s.Line(point1=(45.3824920654297, 27.765754699707), point2=(45.8645668029785,
+                                                                   27.5041236877441))
+        s.Spot(point=(42.5090026855469, 30.5987682342529))
+        s.Spot(point=(43.1529541015625, 31.0589008331299))
+        s.Spot(point=(44.2580032348633, 31.0747680664063))
+        s.Line(point1=(42.1905989232415, 29.8660254037844), point2=(42.5090026855469,
+                                                                    30.5987682342529))
+        s.Line(point1=(42.5090026855469, 30.5987682342529), point2=(43.1529541015625,
+                                                                    31.0589008331299))
+        s.Line(point1=(43.1529541015625, 31.0589008331299), point2=(44.2580032348633,
+                                                                    31.0747680664063))
+        s.Spot(point=(45.3867988586426, 30.7842121124268))
+        s.Spot(point=(46.0166625976563, 29.9571800231934))
+        s.Line(point1=(44.5566243270259, 31.2320508075689), point2=(45.3867988586426,
+                                                                    30.7842121124268))
+        s.Line(point1=(45.3867988586426, 30.7842121124268), point2=(46.0166625976563,
+                                                                    29.9571800231934))
+        s.Spot(point=(46.0630760192871, 30.7842121124268))
+        s.Line(point1=(45.3867988586426, 30.7842121124268), point2=(46.0630760192871,
+                                                                    30.7842121124268))
+        s.Spot(point=(44.1270713806152, 31.8361968994141))
+        s.Spot(point=(42.1844367980957, 30.7180500030518))
+        s.Line(point1=(42.1844367980957, 30.7180500030518), point2=(42.6905989232415,
+                                                                    30.7320508075688))
+        s.Line(point1=(43.5566243270259, 31.2320508075689), point2=(44.1270713806152,
+                                                                    31.8361968994141))
+        s.Line(point1=(44.1270713806152, 31.8361968994141), point2=(44.5566243270259,
+                                                                    31.2320508075689))
+        s.AngularDimension(line1=g[4], line2=g[5], textPoint=(44.3024673461914,
+                                                              27.1297302246094), value=60.0)
+        s.AngularDimension(line1=g[3], line2=g[4], textPoint=(45.5373764038086,
+                                                              27.1297302246094), value=60.0)
+        s.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(44.8835983276367,
+                                                                  28.2653980255127), value=edge)
+        s.ObliqueDimension(vertex1=v[4], vertex2=v[5], textPoint=(44.5842170715332,
+                                                                  25.7109546661377), value=edge)
         s.AngularDimension(line1=g[6], line2=g[4], textPoint=(43.1666450500488,
                                                               27.5885219573975), value=30.0)
         s.AngularDimension(line1=g[6], line2=g[7], textPoint=(42.6676559448242,
@@ -342,22 +388,10 @@ def create_structure(structure, edge):
                                                                     28.466251373291), value=edge)
         s.ObliqueDimension(vertex1=v[19], vertex2=v[20], textPoint=(42.3716430664063,
                                                                     29.2511444091797), value=edge)
-        s.Spot(point=(42.2363243103027, 27.9936275482178))
-        s.Line(point1=(42.2363243103027, 27.9936275482178), point2=(42.6905989232415,
-                                                                    28.0))
         s.AngularDimension(line1=g[9], line2=g[7], textPoint=(42.1263771057129,
                                                               28.2552585601807), value=60.0)
         s.ObliqueDimension(vertex1=v[22], vertex2=v[23], textPoint=(42.4562187194824,
                                                                     27.7741947174072), value=0.5*edge)
-        s.Spot(point=(45.3824920654297, 27.765754699707))
-        s.Spot(point=(45.8983955383301, 28.3734149932861))
-        s.Spot(point=(45.8645668029785, 27.5041236877441))
-        s.Line(point1=(45.8983955383301, 28.3734149932861), point2=(45.3824920654297,
-                                                                    27.765754699707))
-        s.Line(point1=(45.3824920654297, 27.765754699707), point2=(44.5566243270259,
-                                                                   27.5))
-        s.Line(point1=(45.3824920654297, 27.765754699707), point2=(45.8645668029785,
-                                                                   27.5041236877441))
         s.AngularDimension(line1=g[4], line2=g[11], textPoint=(45.0949401855469,
                                                                27.5800819396973), value=30.0)
         s.AngularDimension(line1=g[11], line2=g[10], textPoint=(45.6531295776367,
@@ -370,15 +404,6 @@ def create_structure(structure, edge):
                                                                     27.7826347351074), value=0.5*edge)
         s.ObliqueDimension(vertex1=v[27], vertex2=v[28], textPoint=(45.4247779846191,
                                                                     28.4831314086914), value=edge)
-        s.Spot(point=(42.5090026855469, 30.5987682342529))
-        s.Spot(point=(43.1529541015625, 31.0589008331299))
-        s.Spot(point=(44.2580032348633, 31.0747680664063))
-        s.Line(point1=(42.1905989232415, 29.8660254037844), point2=(42.5090026855469,
-                                                                    30.5987682342529))
-        s.Line(point1=(42.5090026855469, 30.5987682342529), point2=(43.1529541015625,
-                                                                    31.0589008331299))
-        s.Line(point1=(43.1529541015625, 31.0589008331299), point2=(44.2580032348633,
-                                                                    31.0747680664063))
         s.AngularDimension(line1=g[8], line2=g[13], textPoint=(42.2943534851074,
                                                                30.3766345977783), value=30.0)
         s.AngularDimension(line1=g[13], line2=g[14], textPoint=(42.8667526245117,
@@ -391,15 +416,6 @@ def create_structure(structure, edge):
                                                                     30.6939678192139), value=edge)
         s.ObliqueDimension(vertex1=v[40], vertex2=v[41], textPoint=(44.2000007629395,
                                                                     31.0687103271484), value=edge)
-        s.Spot(point=(45.3867988586426, 30.7842121124268))
-        s.Spot(point=(46.0166625976563, 29.9571800231934))
-        s.Line(point1=(44.5566243270259, 31.2320508075689), point2=(45.3867988586426,
-                                                                    30.7842121124268))
-        s.Line(point1=(45.3867988586426, 30.7842121124268), point2=(46.0166625976563,
-                                                                    29.9571800231934))
-        s.Spot(point=(46.0630760192871, 30.7842121124268))
-        s.Line(point1=(45.3867988586426, 30.7842121124268), point2=(46.0630760192871,
-                                                                    30.7842121124268))
         s.HorizontalConstraint(entity=g[18], addUndoState=False)
         s.AngularDimension(line1=g[15], line2=g[16], textPoint=(44.836498260498,
                                                                 31.1547222137451), value=30.0)
@@ -411,14 +427,6 @@ def create_structure(structure, edge):
                                                                     30.2350635528564), value=edge)
         s.ObliqueDimension(vertex1=v[49], vertex2=v[50], textPoint=(45.784610748291,
                                                                     30.5857238769531), value=0.5*edge)
-        s.Spot(point=(44.1270713806152, 31.8361968994141))
-        s.Spot(point=(42.1844367980957, 30.7180500030518))
-        s.Line(point1=(42.1844367980957, 30.7180500030518), point2=(42.6905989232415,
-                                                                    30.7320508075688))
-        s.Line(point1=(43.5566243270259, 31.2320508075689), point2=(44.1270713806152,
-                                                                    31.8361968994141))
-        s.Line(point1=(44.1270713806152, 31.8361968994141), point2=(44.5566243270259,
-                                                                    31.2320508075689))
         s.AngularDimension(line1=g[19], line2=g[13], textPoint=(42.4629020690918,
                                                                 30.5923404693604), value=60.0)
         s.ObliqueDimension(vertex1=v[53], vertex2=v[54], textPoint=(42.3833389282227,
@@ -570,93 +578,90 @@ def create_structure(structure, edge):
 
 
     if structure == 'g':
-        session.viewports['Viewport: 1'].setValues(displayedObject=None)
-        s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
-                                                             sheetSize=200.0)
-        g, v, d, c = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
-        s1.setPrimaryObject(option=STANDALONE)
-        s1.Spot(point=(35.0, 25.0))
-        s1.Spot(point=(40.0, 25.0))
-        s1.Spot(point=(42.5, 22.5))
-        s1.Spot(point=(40.0, 20.0))
-        s1.Spot(point=(35.0, 20.0))
-        s1.Spot(point=(32.5, 22.5))
-        s1.Line(point1=(32.5, 22.5), point2=(35.0, 25.0))
-        s1.Line(point1=(35.0, 25.0), point2=(40.0, 25.0))
-        s1.HorizontalConstraint(entity=g[3], addUndoState=False)
-        s1.Line(point1=(40.0, 25.0), point2=(42.5, 22.5))
-        s1.Line(point1=(42.5, 22.5), point2=(40.0, 20.0))
-        s1.AngularDimension(line1=g[2], line2=g[3], textPoint=(35.4775161743164,
-                                                               23.544548034668), value=120.0)
-        s1.AngularDimension(line1=g[3], line2=g[4], textPoint=(40.0675468444824,
-                                                               23.637393951416), value=120.0)
-        s1.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(37.3383407592773,
-                                                                   26.3299293518066), value=edge)
-        s1.ObliqueDimension(vertex1=v[6], vertex2=v[7], textPoint=(37.1212425231934,
-                                                                   23.9778289794922), value=edge)
-        s1.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(41.6802597045898,
-                                                                     23.8540344238281), value=edge)
-        s1.Line(point1=(38.5, 24.1339745962156), point2=(35.0, 20.0))
-        s1.Line(point1=(35.0, 20.0), point2=(40.0, 20.0))
-        s1.HorizontalConstraint(entity=g[6], addUndoState=False)
-        s1.Line(point1=(40.0, 20.0), point2=(40.5, 24.1339745962156))
-        s1.AngularDimension(line1=g[5], line2=g[6], textPoint=(36.4079284667969,
-                                                               20.7282180786133), value=120.0)
-        s1.ObliqueDimension(vertex1=v[12], vertex2=v[13], textPoint=(39.1854591369629,
-                                                                     21.5610656738281), value=edge)
-        s1.AngularDimension(line1=g[6], line2=g[7], textPoint=(40.2515678405762,
-                                                               23.4575862884521), value=120.0)
-        s1.Spot(point=(39.5133323669434, 25.6798229217529))
-        s1.Spot(point=(39.4938735961914, 22.6701049804688))
-        s1.Spot(point=(40.7975807189941, 23.2817573547363))
-        s1.Spot(point=(38.2971839904785, 23.2720489501953))
-        s1.Spot(point=(38.3750190734863, 25.0196266174316))
-        s1.Spot(point=(40.6419143676758, 25.0002098083496))
-        s1.Line(point1=(38.2971839904785, 23.2720489501953), point2=(39.0,
-                                                                     23.2679491924311))
-        s1.Line(point1=(39.0, 23.2679491924311), point2=(39.4938735961914,
-                                                         22.6701049804688))
-        s1.Line(point1=(39.4938735961914, 22.6701049804688), point2=(40.0,
-                                                                     23.2679491924311))
-        s1.Line(point1=(40.0, 23.2679491924311), point2=(40.7975807189941,
-                                                         23.2817573547363))
-        s1.Line(point1=(38.3750190734863, 25.0196266174316), point2=(39.0, 25.0))
-        s1.Line(point1=(39.0, 25.0), point2=(39.5133323669434, 25.6798229217529))
-        s1.Line(point1=(39.5133323669434, 25.6798229217529), point2=(40.0, 25.0))
-        s1.Line(point1=(40.0, 25.0), point2=(40.6419143676758, 25.0002098083496))
-        s1.AngularDimension(line1=g[12], line2=g[2], textPoint=(38.8539810180664,
-                                                                24.9306106567383), value=60.0)
-        s1.AngularDimension(line1=g[15], line2=g[4], textPoint=(40.1180953979492,
-                                                                24.9036445617676), value=60.0)
-        s1.ObliqueDimension(vertex1=v[32], vertex2=v[33], textPoint=(38.5657234191895,
-                                                                     25.0804290771484), value=0.5*edge)
-        s1.ObliqueDimension(vertex1=v[38], vertex2=v[39], textPoint=(40.3583068847656,
-                                                                     24.9096355438232), value=0.5*edge)
-        s1.AngularDimension(line1=g[13], line2=g[3], textPoint=(39.2173004150391,
-                                                                25.0864219665527), value=60.0)
-        s1.AngularDimension(line1=g[14], line2=g[3], textPoint=(39.8178329467773,
-                                                                25.0744361877441), value=60.0)
-        s1.AngularDimension(line1=g[8], line2=g[5], textPoint=(38.7706718444824,
-                                                               23.4087715148926), value=60.0)
-        s1.ObliqueDimension(vertex1=v[24], vertex2=v[25], textPoint=(38.6139450073242,
-                                                                     23.1541728973389), value=0.5*edge)
-        s1.AngularDimension(line1=g[7], line2=g[11], textPoint=(40.2067031860352,
-                                                                23.3578510284424), value=60.0)
-        s1.ObliqueDimension(vertex1=v[30], vertex2=v[31], textPoint=(40.4363212585449,
-                                                                     23.1941814422607), value=0.5*edge)
-        s1.AngularDimension(line1=g[10], line2=g[6], textPoint=(39.7802658081055,
-                                                                23.1941814422607), value=60.0)
-        s1.AngularDimension(line1=g[6], line2=g[9], textPoint=(39.1387901306152,
-                                                               23.1832695007324), value=60.0)
-        p = mdb.models['Model-1'].Part(name='Part-1',
-                                               dimensionality=TWO_D_PLANAR, type=DEFORMABLE_BODY)
+        s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
+                                                    sheetSize=200.0)
+        g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
+        s.setPrimaryObject(option=STANDALONE)
+        s.Spot(point=(edge*25.0, edge*10.0))
+        s.Spot(point=(edge*30.0, edge*10.0))
+        s.Line(point1=(edge*25.0, edge*10.0), point2=(edge*30.0, edge*10.0))
+        s.HorizontalConstraint(entity=g[2], addUndoState=False)
+        s.ObliqueDimension(vertex1=v[2], vertex2=v[3], textPoint=(edge*27.3458099365234,
+                                                                  edge*12.7896881103516), value=edge)
+        s.Spot(point=(edge*29.4940586090088, edge*9.61226367950439))
+        s.Line(point1=(edge*30.0, edge*10.0), point2=(edge*29.4940586090088, edge*9.61226367950439))
+        s.Line(point1=(edge*29.4940586090088, edge*9.61226367950439), point2=(edge*29.0, edge*10.0))
+        s.AngularDimension(line1=g[2], line2=g[4], textPoint=(edge*29.2078590393066,
+                                                              edge*9.89786338806152), value=60.0)
+        s.AngularDimension(line1=g[2], line2=g[3], textPoint=(edge*29.7405071258545,
+                                                              edge*9.92166328430176), value=60.0)
+        s.Spot(point=(edge*30.6468067169189, edge*9.90579605102539))
+        s.Line(point1=(edge*30.0, edge*10.0), point2=(edge*30.6468067169189, edge*9.90579605102539))
+        s.HorizontalConstraint(entity=g[5])
+        s.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(edge*30.320858001709,
+                                                                    edge*9.78679656982422), value=0.5*edge)
+        s.Spot(point=(edge*28.3174591064453, edge*10.0961961746216))
+        s.Line(point1=(edge*28.3174591064453, edge*10.0961961746216), point2=(edge*29.0, edge*10.0))
+        s.HorizontalConstraint(entity=g[6])
+        s.ObliqueDimension(vertex1=v[13], vertex2=v[14], textPoint=(edge*28.6990585327148,
+                                                                    edge*9.79472923278809), value=0.5*edge)
+        s.Spot(point=(edge*30.3466510772705, edge*10.7745780944824))
+        s.Line(point1=(edge*30.0, edge*10.0), point2=(edge*30.3466510772705, edge*10.7745780944824))
+        s.AngularDimension(line1=g[7], line2=g[5], textPoint=(edge*30.1891174316406,
+                                                              edge*10.1050138473511), value=60.0)
+        s.ObliqueDimension(vertex1=v[16], vertex2=v[17], textPoint=(edge*30.066593170166,
+                                                                    edge*10.4892854690552), value=edge)
+        s.Spot(point=(edge*28.61962890625, edge*10.8793792724609))
+        s.Line(point1=(edge*29.0, edge*10.0), point2=(edge*28.61962890625, edge*10.8793792724609))
+        s.AngularDimension(line1=g[8], line2=g[6], textPoint=(edge*28.7946643829346,
+                                                              edge*10.128303527832), value=60.0)
+        s.ObliqueDimension(vertex1=v[19], vertex2=v[20], textPoint=(edge*28.5729522705078,
+                                                                    edge*10.3437280654907), value=edge)
+        s.Spot(point=(edge*28.9228687286377, edge*11.6237344741821))
+        s.Line(point1=(edge*28.5, edge*10.8660254037844), point2=(edge*28.9228687286377,
+                                                        edge*11.6237344741821))
+        s.AngularDimension(line1=g[9], line2=g[8], textPoint=(edge*28.6901092529297,
+                                                              edge*10.8283767700195), value=120.0)
+        s.ObliqueDimension(vertex1=v[22], vertex2=v[23], textPoint=(edge*28.5490417480469,
+                                                                    edge*11.3421926498413), value=edge)
+        s.Spot(point=(edge*30.2841663360596, edge*11.7222747802734))
+        s.Line(point1=(edge*30.5, edge*10.8660254037844), point2=(edge*30.2841663360596,
+                                                        edge*11.7222747802734))
+        s.AngularDimension(line1=g[7], line2=g[10], textPoint=(edge*30.3264865875244,
+                                                               edge*10.8776473999023), value=120.0)
+        s.ObliqueDimension(vertex1=v[25], vertex2=v[26], textPoint=(edge*30.0937252044678,
+                                                                    edge*11.1521511077881), value=edge)
+        s.Line(point1=(edge*29.0, edge*11.7320508075688), point2=(edge*30.0, edge*11.7320508075688))
+        s.HorizontalConstraint(entity=g[11], addUndoState=False)
+        s.delete(objectList=(d[12],))
+        s.Spot(point=(edge*28.5631484985352, edge*11.6026191711426))
+        s.Line(point1=(edge*29.0, edge*11.7320508075688), point2=(edge*28.5631484985352,
+                                                        edge*11.6026191711426))
+        s.HorizontalConstraint(entity=g[12])
+        s.ObliqueDimension(vertex1=v[30], vertex2=v[31], textPoint=(edge*28.7637672424316, edge*11.6482591629028), value=0.5*edge)
+        s.Spot(point=(edge*30.6245670318604, edge*11.6456441879272))
+        s.Line(point1=(edge*30.0, edge*11.7320508075688), point2=(edge*30.6245670318604,
+                                                        edge*11.6456441879272))
+        s.HorizontalConstraint(entity=g[13])
+        s.ObliqueDimension(vertex1=v[33], vertex2=v[34], textPoint=(edge*30.3310317993164,
+                                                                    edge*11.6508750915527), value=0.5*edge)
+        s.Spot(point=(edge*29.4585571289063, edge*12.0890169143677))
+        s.Line(point1=(edge*29.4585571289063, edge*12.0890169143677), point2=(edge*30.0,
+                                                                    edge*11.7320508075688))
+        s.AngularDimension(line1=g[14], line2=g[11], textPoint=(edge*29.7822399139404,
+                                                                edge*11.7817687988281), value=60.0)
+        s.ObliqueDimension(vertex1=v[36], vertex2=v[37], textPoint=(edge*29.7480278015137,
+                                                                    edge*11.9708442687988), value=edge)
+        s.Line(point1=(edge*29.5, edge*12.5980762113532), point2=(edge*29.0, edge*11.7320508075688))
+
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
         p = mdb.models['Model-1'].parts['Part-1']
-        p.BaseWire(sketch=s1)
-        s1.unsetPrimaryObject()
+        p.BaseWire(sketch=s)
+        s.unsetPrimaryObject()
         p = mdb.models['Model-1'].parts['Part-1']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
-
 
     if structure == 'h':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
@@ -818,7 +823,6 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
-
     if structure == 'i':
         s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                               sheetSize=200.0)
@@ -911,9 +915,6 @@ def create_structure(structure, edge):
                         , buttons=(YES,))
         main()
 
-
-#mode, young_modulus, poisson_rate, c10, c01, d1 = select_material()
-
 def select_material():
     # TODO this is fucking ugly, change!
     young_modulus = None
@@ -963,11 +964,10 @@ def create_material(model, young_modulus, poisson_rate, c10, c01, d1):
             moduliTimeScale=INSTANTANEOUS, volumetricResponse=VOLUMETRIC_DATA,
             table=((float(c10), float(c01), float(d1)),))
 
-
-
-# section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, I = select_cross_section()
-
-def select_cross_section(edge):
+def select_cross_section(edge, structure):
+    # definition of list for structure geometries which require certain catches
+    triangle_structures = ['b', 'c','e', 'f', 'g', 'h', 'i', 'j']
+    quad_structures = ['a', 'd', 'k']
     # TODO this is fucking ugly, change!
     possible_sections = ['box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'i', 'l', 't']
     section = None
@@ -980,7 +980,7 @@ def select_cross_section(edge):
     thickness = None
     thickness_2 = None
     thickness_3 = None
-    I = None
+    i = None
 
     try:
         section = str(getInput("You can choose from the following cross sections\n"
@@ -988,23 +988,313 @@ def select_cross_section(edge):
                                "Please enter the desired cross section profile: ")).lower()
 
         if section == 'box':
-            fields = (('Width [mm]:', '5'), ('Poisson Rate:', '0.3'))
-            young_modulus, poisson_rate = getInputs(fields=fields, label='Specify Material dimensions:',
-                                                    dialogTitle='Create Material', )
+            fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness [mm]:', '1'))
+            width, height, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
             if float(thickness) <= float(width)/2.0 and float(thickness) <= float(height)/2.0:
+                if structure in quad_structures:
+                    if float(width) <= float(edge) / 2.0 and float(height) <= float(edge) / 2.0:
+                        pass
+                elif structure in triangle_structures:
+                    if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
+                        pass
+                else:
+                    if structure in quad_structures:
+                        getWarningReply(
+                            'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
+                            'AND\n'
+                            'The width and height MUST NOT be greater than the edge length divided by two\n'
+                            'Therefore:\n'
+                            'Max width/height: ', float(edge) / 2.0, '\n',
+                            'Max thickness: ', float(width) / 2.0, '\n',
+                            'Please choose the length, width and thickness according to this.\n'
+                            , buttons=(YES,))
+                        section = select_cross_section()
+
+                    elif structure in triangle_structures:
+                        getWarningReply(
+                            'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
+                            'AND\n'
+                            'The width and height MUST NOT be greater than the edge length divided by three\n'
+                            'Therefore:\n'
+                            'Max width/height: ', float(edge) / 3.0, '\n',
+                            'Max thickness: ', float(width) / 2.0, '\n',
+                            'Please choose the length, width and thickness according to this.\n'
+                            , buttons=(YES,))
+                        section = select_cross_section()
+            else:
+                if structure in quad_structures:
+                    getWarningReply(
+                        'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
+                        'AND\n'
+                        'The width and height MUST NOT be greater than the edge length divided by two\n'
+                        'Therefore:\n'
+                        'Max width/height: ', float(edge) / 2.0, '\n',
+                        'Max thickness: ', float(width) / 2.0, '\n',
+                        'Please choose the length, width and thickness according to this.\n'
+                        , buttons=(YES,))
+                    section = select_cross_section()
+
+                elif structure in triangle_structures:
+                    getWarningReply(
+                        'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
+                        'AND\n'
+                        'The width and height MUST NOT be greater than the edge length divided by three\n'
+                        'Therefore:\n'
+                        'Max width/height: ', float(edge) / 3.0, '\n',
+                        'Max thickness: ', float(width) / 2.0, '\n',
+                        'Please choose the length, width and thickness according to this.\n'
+                        , buttons=(YES,))
+                    section = select_cross_section()
+
+        if section == 'circular':
+            fields = (('Radius [mm]:', '5'))
+            radius = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+            if structure in quad_structures:
+                if float(radius) <= float(edge)/2.0:
+                    pass
+            elif structure in triangle_structures:
+                if float(radius) <= float(edge)/3.0:
+                    pass
+            else:
+                if structure in quad_structures:
+                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
+                                    'Max Radius: ', float(edge) / 2.0, '\n',
+                                    'Please choose the radius according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+                elif structure in triangle_structures:
+                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
+                                    'Max Radius: ', float(edge) / 3.0, '\n',
+                                    'Please choose the radius according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+        if section == 'pipe':
+            fields = (('Radius [mm]:', '5'), ('Thickness [mm]:', '1'))
+            radius, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+            if thickness <= radius:
+                if structure in quad_structures:
+                    if float(radius) <= float(edge)/2.0:
+                        pass
+                elif structure in triangle_structures:
+                    if float(radius) <= float(edge)/3.0:
+                        pass
+                else:
+                    if structure in quad_structures:
+                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
+                                        'Max Radius: ', float(edge) / 2.0, '\n',
+                                        'Please choose the radius according to this.\n'
+                                        , buttons=(YES,))
+                        section = select_cross_section()
+                    elif structure in triangle_structures:
+                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
+                                        'Max Radius: ', float(edge) / 3.0, '\n',
+                                        'Please choose the radius according to this.\n'
+                                        , buttons=(YES,))
+                        section = select_cross_section()
+            else:
+                if structure in quad_structures:
+                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
+                                    'Max Radius: ', float(edge) / 2.0, '\n',
+                                    'Please choose the radius according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
+                                    'Max Radius: ', float(edge) / 3.0, '\n',
+                                    'Please choose the radius according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+        if section == 'rectagular':
+            fields = (('Width [mm]:', '5'), ('Height [mm]:', '3'))
+            width, height = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+
+            if structure in quad_structures:
+                if float(width) <= float(edge)/2.0:
+                    if float(height) <= float(edge) / 2.0:
+                        pass
+            elif structure in triangle_structures:
+                if float(width) <= float(edge)/3.0:
+                    if float(height) <= float(edge) / 3.0:
+                        pass
+            else:
+                if structure in quad_structures:
+                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by two.\n'
+                                    'Max width/height: ', float(edge) / 2.0, '\n',
+                                    'Please choose the width/height according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by three.\n'
+                                    'Max width/height: ', float(edge) / 3.0, '\n',
+                                    'Please choose the width/height according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+        if section == 'hexagonal':
+            fields = (('Radius [mm]:', '5'), ('Thickness [mm]:', '1'))
+            radius, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+            if thickness <= radius:
+                if structure in quad_structures:
+                    if float(radius) <= float(edge)/2.0:
+                        pass
+                elif structure in triangle_structures:
+                    if float(radius) <= float(edge)/3.0:
+                        pass
+                else:
+                    if structure in quad_structures:
+                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
+                                        'Max Radius: ', float(edge) / 2.0, '\n',
+                                        'Please choose the radius according to this.\n'
+                                        , buttons=(YES,))
+                        section = select_cross_section()
+                    elif structure in triangle_structures:
+                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
+                                        'Max Radius: ', float(edge) / 3.0, '\n',
+                                        'Please choose the radius according to this.\n'
+                                        , buttons=(YES,))
+                        section = select_cross_section()
+            else:
+                if structure in quad_structures:
+                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
+                                    'Max Radius: ', float(edge) / 2.0, '\n',
+                                    'Please choose the radius according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
+                                    'Max Radius: ', float(edge) / 3.0, '\n',
+                                    'Please choose the radius according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+
+
+        if section == 'trapezoidal':
+            fields = (('Width [mm]:', '5'), ('Height [mm]:', '3'), ('Width small [mm]:', '2'), ('Offset [mm]:', '1'))
+            width, height, width_2, d = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+
+            if structure in quad_structures:
+                if float(width) <= float(edge)/2.0:
+                    if float(height) <= float(edge) / 2.0:
+                        pass
+            elif structure in triangle_structures:
+                if float(width) <= float(edge)/3.0:
+                    if float(height) <= float(edge) / 3.0:
+                        pass
+            else:
+                if structure in quad_structures:
+                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by two.\n'
+                                    'Max width/height: ', float(edge) / 2.0, '\n',
+                                    'Please choose the width/height according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by three.\n'
+                                    'Max width/height: ', float(edge) / 3.0, '\n',
+                                    'Please choose the width/height according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+
+        if section == 'i':
+            fields = (('Offset [mm]:', '2'), ('Height [mm]:', '4'), ('Width [mm]:', '3'),('Width top [mm]:', '3'),
+                      ('Thickness bottom [mm]:', '1'), ('Thickness top [mm]:', '1'), ('Thickness mid [mm]:', '1'))
+            i, height, width, width_2, thickness, thickness_2, thickness_3 = getInputs(fields=fields,
+                                                                             label='Specify cross section dimensions:',
+                                                                             dialogTitle='Create Cross Section', )
+
+            if structure in quad_structures:
+                if float(width) <= float(edge)/2.0:
+                    if float(width_2) <= float(edge) / 2.0:
+                        if float(height) <= float(edge) / 2.0:
+                            pass
+            elif structure in triangle_structures:
+                if float(width) <= float(edge)/3.0:
+                    if float(width_2) <= float(edge) / 3.0:
+                        if float(height) <= float(edge) / 3.0:
+                            pass
+            else:
+                if structure in quad_structures:
+                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by two.\n'
+                                    'Max width/height: ', float(edge) / 2.0, '\n',
+                                    'Please choose the width/height according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by three.\n'
+                                    'Max width/height: ', float(edge) / 3.0, '\n',
+                                    'Please choose the width/height according to this.\n'
+                                    , buttons=(YES,))
+                    section = select_cross_section()
+
+
+
+        if section == 'l':
+            fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness bottom [mm]:', '1'), ('Thickness top [mm]:', '1'))
+            width, height, thickness, thickness_2 = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+            if structure in quad_structures:
+                if float(width) <= float(edge) / 2.0 and float(height) <= float(edge) / 2.0:
+                    pass
+            elif structure in triangle_structures:
                 if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
                     pass
             else:
-                getWarningReply('The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
-                                'AND\n'
-                                'The width and height MUST NOT be greater than the edge length divided by three\n'
-                                'Therefore:\n'
-                                'Max width/height: ', float(edge)/3.0,'\n',
-                                'Max thickness: ', float(width)/2.0,'\n',
-                                'Please choose the length, width and thickness according to this.\n'
-                                , buttons=(YES,))
-                section = select_material()
+                if structure in quad_structures:
+                    getWarningReply(
+                        'The width and height MUST NOT be greater than the edge length divided by two\n'
+                        'Therefore:\n'
+                        'Max width/height: ', float(edge) / 2.0, '\n',
+                        'Please choose the length, width and thickness according to this.\n'
+                        , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply(
+                        'The width and height MUST NOT be greater than the edge length divided by three\n'
+                        'Therefore:\n'
+                        'Max width/height: ', float(edge) / 3.0, '\n',
+                        'Please choose the length, width and thickness according to this.\n'
+                        , buttons=(YES,))
+                    section = select_cross_section()
 
+
+
+        if section == 't':
+            fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'),('Offset [mm]:', '2'), ('Thickness top [mm]:', '1'), ('Thickness bottom [mm]:', '1'))
+            width, height, i, thickness, thickness_2 = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                    dialogTitle='Create Cross Section', )
+            if structure in quad_structures:
+                if float(width) <= float(edge) / 2.0 and float(height) <= float(edge) / 2.0:
+                    pass
+            elif structure in triangle_structures:
+                if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
+                    pass
+            else:
+                if structure in quad_structures:
+                    getWarningReply(
+                        'The width and height MUST NOT be greater than the edge length divided by two\n'
+                        'Therefore:\n'
+                        'Max width/height: ', float(edge) / 2.0, '\n',
+                        'Please choose the length, width and thickness according to this.\n'
+                        , buttons=(YES,))
+                    section = select_cross_section()
+                elif structure in triangle_structures:
+                    getWarningReply(
+                        'The width and height MUST NOT be greater than the edge length divided by three\n'
+                        'Therefore:\n'
+                        'Max width/height: ', float(edge) / 3.0, '\n',
+                        'Please choose the length, width and thickness according to this.\n'
+                        , buttons=(YES,))
+                    section = select_cross_section()
 
     except:
         getWarningReply('The chosen value is not available.\n'
@@ -1012,6 +1302,67 @@ def select_cross_section(edge):
                         "'box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'I', 'L', 'T'\n"
                         , buttons=(YES,))
         section = select_cross_section()
+
+    return section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i
+
+def create_cross_section(section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i):
+    if section == 'box':
+        mdb.models['Model-1'].BoxProfile(name='Profile-1', b=float(width), a=float(height),
+                                                 uniformThickness=ON, t1=float(thickness))
+    if section == 'circular':
+        mdb.models['Model-1'].CircularProfile(name='Profile-1', r=float(radius))
+    if section == 'pipe':
+        mdb.models['Model-1'].PipeProfile(name='Profile-1', r=float(radius), t=float(thickness))
+    if section == 'rectangular':
+        mdb.models['Model-1'].RectangularProfile(name='Profile-1', a=float(width), b=float(height))
+    if section == 'hexagonal':
+        mdb.models['Model-1'].HexagonalProfile(name='Profile-1', r=float(radius), t=float(thickness))
+    if section == 'trapezoidal':
+        mdb.models['Model-1'].TrapezoidalProfile(name='Profile-1', a=float(width), b=float(height),
+                                                 c=float(width_2), d=float(d))
+    if section == 'i':
+        mdb.models['Model-1'].IProfile(name='Profile-1', l=float(i), h=float(height), b1=float(width),
+                                       b2=float(width_2), t1=float(thickness), t2=float(thickness_2),
+                                       t3=float(thickness_3))
+    if section == 't':
+        mdb.models['Model-1'].TProfile(name='Profile-1', b=float(width), h=float(height), l=float(i),
+                                       tf=float(thickness), tw=float(thickness_2))
+    if section == 'l':
+        mdb.models['Model-1'].LProfile(name='Profile-1', a=float(width), b=float(height), t1=float(thickness),
+                                       t2=float(thickness_2))
+    mdb.models['Model-1'].BeamSection(name='Section-1',
+                                      integration=DURING_ANALYSIS, poissonRatio=0.0, profile='Profile-1',
+                                      material='Material-1', temperatureVar=LINEAR,
+                                      consistentMassMatrix=False)
+    p = mdb.models['Model-1'].parts['Part-1']
+    e = p.edges
+    edges = e.getSequenceFromMask(mask=('[#ffffffff #3ff ]',), )
+    region = p.Set(edges=edges, name='Set-1')
+    p = mdb.models['Model-1'].parts['Part-1']
+    p.SectionAssignment(region=region, sectionName='Section-1', offset=0.0,
+                        offsetType=MIDDLE_SURFACE, offsetField='',
+                        thicknessAssignment=FROM_SECTION)
+    p = mdb.models['Model-1'].parts['Part-1']
+    e = p.edges
+    edges = e.getSequenceFromMask(mask=('[#ffffffff #3ff ]',), )
+    region = p.Set(edges=edges, name='Set-2')
+    p = mdb.models['Model-1'].parts['Part-1']
+    p.assignBeamSectionOrientation(region=region, method=N1_COSINES, n1=(0.0, 0.0,
+                                                                         -1.0))
+
+def create_mesh(edge):
+    p = mdb.models['Model-1'].parts['Part-1']
+    p.seedPart(size=0.1*edge, deviationFactor=0.1, minSizeFactor=0.1)
+    p.generateMesh()
+
+def create_assembly():
+    a = mdb.models['Model-1'].rootAssembly
+    a.DatumCsysByDefault(CARTESIAN)
+    p = mdb.models['Model-1'].parts['Part-1']
+    a.Instance(name='Part-1-1', part=p, dependent=ON)
+
+def create_step():
+    mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial', initialInc=0.1)
 
 if __name__ == "__main__":
     main()
