@@ -55,10 +55,10 @@ def main():
     # There is an additional condition which prevents the beam section to be too large and to overlap at areas which
     # are not supposed to overlap. This is not visible in the visualization but unphysical conditions are not desired.
     # You can find additional information in the documentation attached to this code
-    section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i = select_cross_section(edge, structure)
+    section, width, width_2, height, radius, d, thickness, thickness_2, thickness_3, i = select_cross_section(edge, structure)
 
     # Create the choosen Cross section and assign it to the structure
-    create_cross_section(section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i)
+    create_cross_section(section, width, width_2, height, radius, d, thickness, thickness_2, thickness_3, i)
 
     # Create the mesh for the FEA
     create_mesh(edge)
@@ -970,342 +970,237 @@ def select_cross_section(edge, structure):
     quad_structures = ['a', 'd', 'k']
     # TODO this is fucking ugly, change!
     possible_sections = ['box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'i', 'l', 't']
-    section = None
     width = None
     width_2 = None
     height = None
     radius = None
-    c = None
     d = None
     thickness = None
     thickness_2 = None
     thickness_3 = None
     i = None
 
-    try:
-        section = str(getInput("You can choose from the following cross sections\n"
-                               "'box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'I', 'L', 'T'\n"
-                               "Please enter the desired cross section profile: ")).lower()
+    section = str(getInput("You can choose from the following cross sections\n"
+                           "'box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'I', 'L', 'T'\n"
+                           "Please enter the desired cross section profile: ")).lower()
+    if section == 'box':
+        fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness [mm]:', '1'))
+        width, height, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if float(thickness) >= float(width)/2.0 or float(thickness) >= float(height)/2.0:
+            getWarningReply(
+                'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                , buttons=(YES,))
+            section = select_cross_section(edge, structure)
+        if structure in quad_structures:
+            if float(width) >= float(edge) / 2.0 or float(height) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+        if structure in triangle_structures:
+            if float(width) >= float(edge)/3.0 or float(height) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'box':
-            fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness [mm]:', '1'))
-            width, height, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
-            if float(thickness) <= float(width)/2.0 and float(thickness) <= float(height)/2.0:
-                if structure in quad_structures:
-                    if float(width) <= float(edge) / 2.0 and float(height) <= float(edge) / 2.0:
-                        pass
-                elif structure in triangle_structures:
-                    if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
-                        pass
-                else:
-                    if structure in quad_structures:
-                        getWarningReply(
-                            'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
-                            'AND\n'
-                            'The width and height MUST NOT be greater than the edge length divided by two\n'
-                            'Therefore:\n'
-                            'Max width/height: ', float(edge) / 2.0, '\n',
-                            'Max thickness: ', float(width) / 2.0, '\n',
-                            'Please choose the length, width and thickness according to this.\n'
-                            , buttons=(YES,))
-                        section = select_cross_section()
+    if section == 'circular':
+        radius = str(getInput("Specify cross section dimensions:"))
 
-                    elif structure in triangle_structures:
-                        getWarningReply(
-                            'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
-                            'AND\n'
-                            'The width and height MUST NOT be greater than the edge length divided by three\n'
-                            'Therefore:\n'
-                            'Max width/height: ', float(edge) / 3.0, '\n',
-                            'Max thickness: ', float(width) / 2.0, '\n',
-                            'Please choose the length, width and thickness according to this.\n'
-                            , buttons=(YES,))
-                        section = select_cross_section()
-            else:
-                if structure in quad_structures:
-                    getWarningReply(
-                        'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
-                        'AND\n'
-                        'The width and height MUST NOT be greater than the edge length divided by two\n'
-                        'Therefore:\n'
-                        'Max width/height: ', float(edge) / 2.0, '\n',
-                        'Max thickness: ', float(width) / 2.0, '\n',
-                        'Please choose the length, width and thickness according to this.\n'
-                        , buttons=(YES,))
-                    section = select_cross_section()
+        if structure in quad_structures:
+            if float(radius) >= float(edge)/2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+        if structure in triangle_structures:
+            if float(radius) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-                elif structure in triangle_structures:
-                    getWarningReply(
-                        'The thickness MUST NOT be equal or greater than half the width/height of the cross section.\n'
-                        'AND\n'
-                        'The width and height MUST NOT be greater than the edge length divided by three\n'
-                        'Therefore:\n'
-                        'Max width/height: ', float(edge) / 3.0, '\n',
-                        'Max thickness: ', float(width) / 2.0, '\n',
-                        'Please choose the length, width and thickness according to this.\n'
-                        , buttons=(YES,))
-                    section = select_cross_section()
+    if section == 'pipe':
+        fields = (('Radius [mm]:', '5'), ('Thickness [mm]:', '1'))
+        radius, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if thickness >= radius:
+            getWarningReply(
+                'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                , buttons=(YES,))
+            section = select_cross_section(edge, structure)
+        if structure in quad_structures:
+            if float(radius) >= float(edge)/2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'circular':
-            fields = (('Radius [mm]:', '5'))
-            radius = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
-            if structure in quad_structures:
-                if float(radius) <= float(edge)/2.0:
-                    pass
-            elif structure in triangle_structures:
-                if float(radius) <= float(edge)/3.0:
-                    pass
-            else:
-                if structure in quad_structures:
-                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
-                                    'Max Radius: ', float(edge) / 2.0, '\n',
-                                    'Please choose the radius according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+        if structure in triangle_structures:
+            if float(radius) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-                elif structure in triangle_structures:
-                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
-                                    'Max Radius: ', float(edge) / 3.0, '\n',
-                                    'Please choose the radius according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+    if section == 'rectangular':
+        fields = (('Width [mm]:', '5'), ('Height [mm]:', '3'))
+        width, height = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if structure in quad_structures:
+            if float(width) >= float(edge)/2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(height) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'pipe':
-            fields = (('Radius [mm]:', '5'), ('Thickness [mm]:', '1'))
-            radius, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
-            if thickness <= radius:
-                if structure in quad_structures:
-                    if float(radius) <= float(edge)/2.0:
-                        pass
-                elif structure in triangle_structures:
-                    if float(radius) <= float(edge)/3.0:
-                        pass
-                else:
-                    if structure in quad_structures:
-                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
-                                        'Max Radius: ', float(edge) / 2.0, '\n',
-                                        'Please choose the radius according to this.\n'
-                                        , buttons=(YES,))
-                        section = select_cross_section()
-                    elif structure in triangle_structures:
-                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
-                                        'Max Radius: ', float(edge) / 3.0, '\n',
-                                        'Please choose the radius according to this.\n'
-                                        , buttons=(YES,))
-                        section = select_cross_section()
-            else:
-                if structure in quad_structures:
-                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
-                                    'Max Radius: ', float(edge) / 2.0, '\n',
-                                    'Please choose the radius according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
-                                    'Max Radius: ', float(edge) / 3.0, '\n',
-                                    'Please choose the radius according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+        if structure in triangle_structures:
+            if float(width) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(height) >= float(edge) / 3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'rectagular':
-            fields = (('Width [mm]:', '5'), ('Height [mm]:', '3'))
-            width, height = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
+    if section == 'hexagonal':
+        fields = (('Radius [mm]:', '5'), ('Thickness [mm]:', '1'))
+        radius, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if thickness >= radius:
+            getWarningReply(
+                'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                , buttons=(YES,))
+            section = select_cross_section(edge, structure)
+        if structure in quad_structures:
+            if float(radius) >= float(edge)/2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-            if structure in quad_structures:
-                if float(width) <= float(edge)/2.0:
-                    if float(height) <= float(edge) / 2.0:
-                        pass
-            elif structure in triangle_structures:
-                if float(width) <= float(edge)/3.0:
-                    if float(height) <= float(edge) / 3.0:
-                        pass
-            else:
-                if structure in quad_structures:
-                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by two.\n'
-                                    'Max width/height: ', float(edge) / 2.0, '\n',
-                                    'Please choose the width/height according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by three.\n'
-                                    'Max width/height: ', float(edge) / 3.0, '\n',
-                                    'Please choose the width/height according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+        if structure in triangle_structures:
+            if float(radius) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'hexagonal':
-            fields = (('Radius [mm]:', '5'), ('Thickness [mm]:', '1'))
-            radius, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
-            if thickness <= radius:
-                if structure in quad_structures:
-                    if float(radius) <= float(edge)/2.0:
-                        pass
-                elif structure in triangle_structures:
-                    if float(radius) <= float(edge)/3.0:
-                        pass
-                else:
-                    if structure in quad_structures:
-                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
-                                        'Max Radius: ', float(edge) / 2.0, '\n',
-                                        'Please choose the radius according to this.\n'
-                                        , buttons=(YES,))
-                        section = select_cross_section()
-                    elif structure in triangle_structures:
-                        getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
-                                        'Max Radius: ', float(edge) / 3.0, '\n',
-                                        'Please choose the radius according to this.\n'
-                                        , buttons=(YES,))
-                        section = select_cross_section()
-            else:
-                if structure in quad_structures:
-                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by two.\n'
-                                    'Max Radius: ', float(edge) / 2.0, '\n',
-                                    'Please choose the radius according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply('The radius MUST NOT be equal or greater than the edge length divided by three.\n'
-                                    'Max Radius: ', float(edge) / 3.0, '\n',
-                                    'Please choose the radius according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+    if section == 'trapezoidal':
+        fields = (('Width [mm]:', '5'), ('Height [mm]:', '3'), ('Width small [mm]:', '2'), ('Offset [mm]:', '1'))
+        width, height, width_2, d = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if structure in quad_structures:
+            if float(width) >= float(edge)/2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(height) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
+        if structure in triangle_structures:
+            if float(width) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(height) >= float(edge) / 3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
+    if section == 'i':
+        fields = (('Offset [mm]:', '2'), ('Height [mm]:', '4'), ('Width [mm]:', '3'),('Width top [mm]:', '3'),
+                  ('Thickness bottom [mm]:', '1'), ('Thickness top [mm]:', '1'), ('Thickness mid [mm]:', '1'))
+        i, height, width, width_2, thickness, thickness_2, thickness_3 = getInputs(fields=fields,
+                                                                         label='Specify cross section dimensions:',
+                                                                         dialogTitle='Create Cross Section', )
+        if structure in quad_structures:
+            if float(width) >= float(edge)/2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(width_2) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(height) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'trapezoidal':
-            fields = (('Width [mm]:', '5'), ('Height [mm]:', '3'), ('Width small [mm]:', '2'), ('Offset [mm]:', '1'))
-            width, height, width_2, d = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
+        if structure in triangle_structures:
+            if float(width) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(width_2) >= float(edge) / 3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+            if float(height) >= float(edge) / 3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-            if structure in quad_structures:
-                if float(width) <= float(edge)/2.0:
-                    if float(height) <= float(edge) / 2.0:
-                        pass
-            elif structure in triangle_structures:
-                if float(width) <= float(edge)/3.0:
-                    if float(height) <= float(edge) / 3.0:
-                        pass
-            else:
-                if structure in quad_structures:
-                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by two.\n'
-                                    'Max width/height: ', float(edge) / 2.0, '\n',
-                                    'Please choose the width/height according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by three.\n'
-                                    'Max width/height: ', float(edge) / 3.0, '\n',
-                                    'Please choose the width/height according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+    if section == 'l':
+        fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness bottom [mm]:', '1'), ('Thickness top [mm]:', '1'))
+        width, height, thickness, thickness_2 = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if structure in quad_structures:
+            if float(width) >= float(edge) / 2.0 or float(height) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
+        if structure in triangle_structures:
+            if float(width) >= float(edge)/3.0 or float(height) >= float(edge)/3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-        if section == 'i':
-            fields = (('Offset [mm]:', '2'), ('Height [mm]:', '4'), ('Width [mm]:', '3'),('Width top [mm]:', '3'),
-                      ('Thickness bottom [mm]:', '1'), ('Thickness top [mm]:', '1'), ('Thickness mid [mm]:', '1'))
-            i, height, width, width_2, thickness, thickness_2, thickness_3 = getInputs(fields=fields,
-                                                                             label='Specify cross section dimensions:',
-                                                                             dialogTitle='Create Cross Section', )
+    if section == 't':
+        fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'),('Offset [mm]:', '2'), ('Thickness top [mm]:', '1'), ('Thickness bottom [mm]:', '1'))
+        width, height, i, thickness, thickness_2 = getInputs(fields=fields, label='Specify cross section dimensions:',
+                                                dialogTitle='Create Cross Section', )
+        if structure in quad_structures:
+            if float(width) >= float(edge) / 2.0 or float(height) >= float(edge) / 2.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
+        if structure in triangle_structures:
+            if float(width) >= float(edge) / 3.0 or float(height) >= float(edge) / 3.0:
+                getWarningReply(
+                    'The radius/width/height/thickness is too large (in relation to the edge size)\n'
+                    , buttons=(YES,))
+                section = select_cross_section(edge, structure)
 
-            if structure in quad_structures:
-                if float(width) <= float(edge)/2.0:
-                    if float(width_2) <= float(edge) / 2.0:
-                        if float(height) <= float(edge) / 2.0:
-                            pass
-            elif structure in triangle_structures:
-                if float(width) <= float(edge)/3.0:
-                    if float(width_2) <= float(edge) / 3.0:
-                        if float(height) <= float(edge) / 3.0:
-                            pass
-            else:
-                if structure in quad_structures:
-                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by two.\n'
-                                    'Max width/height: ', float(edge) / 2.0, '\n',
-                                    'Please choose the width/height according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply('The width/height MUST NOT be equal or greater than the edge length divided by three.\n'
-                                    'Max width/height: ', float(edge) / 3.0, '\n',
-                                    'Please choose the width/height according to this.\n'
-                                    , buttons=(YES,))
-                    section = select_cross_section()
+    return section, width, width_2, height, radius, d, thickness, thickness_2, thickness_3, i
 
-
-
-        if section == 'l':
-            fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness bottom [mm]:', '1'), ('Thickness top [mm]:', '1'))
-            width, height, thickness, thickness_2 = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
-            if structure in quad_structures:
-                if float(width) <= float(edge) / 2.0 and float(height) <= float(edge) / 2.0:
-                    pass
-            elif structure in triangle_structures:
-                if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
-                    pass
-            else:
-                if structure in quad_structures:
-                    getWarningReply(
-                        'The width and height MUST NOT be greater than the edge length divided by two\n'
-                        'Therefore:\n'
-                        'Max width/height: ', float(edge) / 2.0, '\n',
-                        'Please choose the length, width and thickness according to this.\n'
-                        , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply(
-                        'The width and height MUST NOT be greater than the edge length divided by three\n'
-                        'Therefore:\n'
-                        'Max width/height: ', float(edge) / 3.0, '\n',
-                        'Please choose the length, width and thickness according to this.\n'
-                        , buttons=(YES,))
-                    section = select_cross_section()
-
-
-
-        if section == 't':
-            fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'),('Offset [mm]:', '2'), ('Thickness top [mm]:', '1'), ('Thickness bottom [mm]:', '1'))
-            width, height, i, thickness, thickness_2 = getInputs(fields=fields, label='Specify cross section dimensions:',
-                                                    dialogTitle='Create Cross Section', )
-            if structure in quad_structures:
-                if float(width) <= float(edge) / 2.0 and float(height) <= float(edge) / 2.0:
-                    pass
-            elif structure in triangle_structures:
-                if float(width) <= float(edge)/3.0 and float(height) <= float(edge)/3.0:
-                    pass
-            else:
-                if structure in quad_structures:
-                    getWarningReply(
-                        'The width and height MUST NOT be greater than the edge length divided by two\n'
-                        'Therefore:\n'
-                        'Max width/height: ', float(edge) / 2.0, '\n',
-                        'Please choose the length, width and thickness according to this.\n'
-                        , buttons=(YES,))
-                    section = select_cross_section()
-                elif structure in triangle_structures:
-                    getWarningReply(
-                        'The width and height MUST NOT be greater than the edge length divided by three\n'
-                        'Therefore:\n'
-                        'Max width/height: ', float(edge) / 3.0, '\n',
-                        'Please choose the length, width and thickness according to this.\n'
-                        , buttons=(YES,))
-                    section = select_cross_section()
-
-    except:
-        getWarningReply('The chosen value is not available.\n'
-                        'Please choose one of the following sections: \n'
-                        "'box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'I', 'L', 'T'\n"
-                        , buttons=(YES,))
-        section = select_cross_section()
-
-    return section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i
-
-def create_cross_section(section, width, width_2, height, radius, c, d, thickness, thickness_2, thickness_3, i):
+def create_cross_section(section, width, width_2, height, radius, d, thickness, thickness_2, thickness_3, i):
     if section == 'box':
         mdb.models['Model-1'].BoxProfile(name='Profile-1', b=float(width), a=float(height),
                                                  uniformThickness=ON, t1=float(thickness))
@@ -1330,9 +1225,9 @@ def create_cross_section(section, width, width_2, height, radius, c, d, thicknes
     if section == 'l':
         mdb.models['Model-1'].LProfile(name='Profile-1', a=float(width), b=float(height), t1=float(thickness),
                                        t2=float(thickness_2))
-    mdb.models['Model-1'].BeamSection(name='Section-1',
-                                      integration=DURING_ANALYSIS, poissonRatio=0.0, profile='Profile-1',
-                                      material='Material-1', temperatureVar=LINEAR,
+
+    mdb.models['Model-1'].BeamSection(name='Section-1', integration=DURING_ANALYSIS, poissonRatio=0.0,
+                                      profile='Profile-1', material='Material-1', temperatureVar=LINEAR,
                                       consistentMassMatrix=False)
     p = mdb.models['Model-1'].parts['Part-1']
     e = p.edges
@@ -1363,6 +1258,17 @@ def create_assembly():
 
 def create_step():
     mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial', initialInc=0.1)
+
+def select_boundary_conditions():
+    fields = (('Force [N]:', '1000'), ('Loadcase [uniaxial/shear]:', 'uniaxial'), ('Axis [x/y]:', 'x'))
+    force, loadcase, axis = getInputs(fields=fields, label='Specify Loading Conditions:',
+                                         dialogTitle='Create Loadcase', )
+    return force, loadcase, axis
+
+def create_boundary_conditions(structure, force, loadcase, axis):
+    if structure == 'a':
+        pass
+
 
 if __name__ == "__main__":
     main()
