@@ -70,8 +70,16 @@ def main():
     create_step()
 
     # Fifth User Input:
-    # Loading Conditions. The User can choose between uniaxial and shear loading as well as decide the provided force
-    #loadcase, force = select_loading()
+    # Loading Conditions.
+    # The User can choose between uniaxial and shear loading as well as decide the provided force and axis
+    force, loadcase, axis = select_boundary_conditions()
+
+    # Create the Boundary conditions for the user
+    # This includes:
+    #   - Loads
+    #   - Boundary Conditions
+    #   - Periodic Boundary Conditions (Equations)
+    create_boundary_conditions(structure, force, loadcase, axis)
 
 
 # This function queries the user to choose between the 11 possible Structures and returns the chosen value.
@@ -80,7 +88,7 @@ def main():
 def select_structure():
     possible_structures = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k']
     structure = str(getInput("Please choose one of the 11 Structures presented in the attached documentation."
-                             " [Choose from a to k]"))
+                             " [Choose from a to k]", "a"))
     if structure in possible_structures:
         pass
     else:
@@ -94,7 +102,7 @@ def select_edge_length(structure):
                       'g': 'Kagome', 'h': 'Bounce', 'i': 'Trellis', 'j': 'Mapple_leaf', 'k': 'SHD'}
     try:
         edge_length = float(getInput("Please enter the desired edge length for "+
-                                     structure_dict[structure]+" in [mm]"))
+                                     structure_dict[structure]+" in [mm]", "20"))
     except:
         getWarningReply('The provided value is not a valid number.\n'
                         'Please choose an Integer or float.\n'
@@ -133,12 +141,12 @@ def create_structure(structure, edge):
         s1.Line(point1=(edge * 0.5, edge * 0.5), point2=(edge * 0.5, 0.0))
         s1.VerticalConstraint(entity=g[5], addUndoState=False)
         s1.ParallelConstraint(entity1=g[4], entity2=g[5], addUndoState=False)
-        p = mdb.models['Model-1'].Part(name='Part', dimensionality=TWO_D_PLANAR,
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
                                        type=DEFORMABLE_BODY)
-        p = mdb.models['Model-1'].parts['Part']
+        p = mdb.models['Model-1'].parts['Part-1']
         p.BaseWire(sketch=s1)
         s1.unsetPrimaryObject()
-        p = mdb.models['Model-1'].parts['Part']
+        p = mdb.models['Model-1'].parts['Part-1']
         del mdb.models['Model-1'].sketches['__profile__']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
 
@@ -306,137 +314,159 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
 
     if structure == 'e':
-        session.viewports['Viewport: 1'].setValues(displayedObject=None)
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
-                                                          sheetSize=200.0)
+                                                    sheetSize=200.0)
         g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
         s.setPrimaryObject(option=STANDALONE)
-        s.Spot(point=(45.0, 25.0))
-        s.Spot(point=(45.0, 22.5))
-        s.Spot(point=(46.25, 27.5))
-        s.Spot(point=(43.75, 27.5))
-        s.Line(point1=(45.0, 22.5), point2=(45.0, 25.0))
-        s.VerticalConstraint(entity=g[2], addUndoState=False)
-        s.Line(point1=(45.0, 25.0), point2=(46.25, 27.5))
-        s.Line(point1=(46.25, 27.5), point2=(43.75, 27.5))
-        s.HorizontalConstraint(entity=g[4], addUndoState=False)
-        s.Line(point1=(43.75, 27.5), point2=(45.0, 25.0))
-        s.Spot(point=(42.8706321716309, 27.8417129516602))
-        s.Spot(point=(42.4985046386719, 28.6266059875488))
-        s.Spot(point=(42.5154190063477, 29.3355407714844))
-        s.Line(point1=(43.5566243270259, 27.5), point2=(42.8706321716309,
-                                                        27.8417129516602))
-        s.Line(point1=(42.8706321716309, 27.8417129516602), point2=(42.4985046386719,
-                                                                    28.6266059875488))
-        s.Line(point1=(42.4985046386719, 28.6266059875488), point2=(42.5154190063477,
-                                                                    29.3355407714844))
-        s.Spot(point=(42.2363243103027, 27.9936275482178))
-        s.Line(point1=(42.2363243103027, 27.9936275482178), point2=(42.6905989232415,
-                                                                    28.0))
-        s.Spot(point=(45.3824920654297, 27.765754699707))
-        s.Spot(point=(45.8983955383301, 28.3734149932861))
-        s.Spot(point=(45.8645668029785, 27.5041236877441))
-        s.Line(point1=(45.8983955383301, 28.3734149932861), point2=(45.3824920654297,
-                                                                    27.765754699707))
-        s.Line(point1=(45.3824920654297, 27.765754699707), point2=(44.5566243270259,
-                                                                   27.5))
-        s.Line(point1=(45.3824920654297, 27.765754699707), point2=(45.8645668029785,
-                                                                   27.5041236877441))
-        s.Spot(point=(42.5090026855469, 30.5987682342529))
-        s.Spot(point=(43.1529541015625, 31.0589008331299))
-        s.Spot(point=(44.2580032348633, 31.0747680664063))
-        s.Line(point1=(42.1905989232415, 29.8660254037844), point2=(42.5090026855469,
-                                                                    30.5987682342529))
-        s.Line(point1=(42.5090026855469, 30.5987682342529), point2=(43.1529541015625,
-                                                                    31.0589008331299))
-        s.Line(point1=(43.1529541015625, 31.0589008331299), point2=(44.2580032348633,
-                                                                    31.0747680664063))
-        s.Spot(point=(45.3867988586426, 30.7842121124268))
-        s.Spot(point=(46.0166625976563, 29.9571800231934))
-        s.Line(point1=(44.5566243270259, 31.2320508075689), point2=(45.3867988586426,
-                                                                    30.7842121124268))
-        s.Line(point1=(45.3867988586426, 30.7842121124268), point2=(46.0166625976563,
-                                                                    29.9571800231934))
-        s.Spot(point=(46.0630760192871, 30.7842121124268))
-        s.Line(point1=(45.3867988586426, 30.7842121124268), point2=(46.0630760192871,
-                                                                    30.7842121124268))
-        s.Spot(point=(44.1270713806152, 31.8361968994141))
-        s.Spot(point=(42.1844367980957, 30.7180500030518))
-        s.Line(point1=(42.1844367980957, 30.7180500030518), point2=(42.6905989232415,
-                                                                    30.7320508075688))
-        s.Line(point1=(43.5566243270259, 31.2320508075689), point2=(44.1270713806152,
-                                                                    31.8361968994141))
-        s.Line(point1=(44.1270713806152, 31.8361968994141), point2=(44.5566243270259,
-                                                                    31.2320508075689))
-        s.AngularDimension(line1=g[4], line2=g[5], textPoint=(44.3024673461914,
-                                                              27.1297302246094), value=60.0)
-        s.AngularDimension(line1=g[3], line2=g[4], textPoint=(45.5373764038086,
-                                                              27.1297302246094), value=60.0)
-        s.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(44.8835983276367,
-                                                                  28.2653980255127), value=edge)
-        s.ObliqueDimension(vertex1=v[4], vertex2=v[5], textPoint=(44.5842170715332,
-                                                                  25.7109546661377), value=edge)
-        s.AngularDimension(line1=g[6], line2=g[4], textPoint=(43.1666450500488,
-                                                              27.5885219573975), value=30.0)
-        s.AngularDimension(line1=g[6], line2=g[7], textPoint=(42.6676559448242,
-                                                              28.1371021270752), value=30.0)
-        s.AngularDimension(line1=g[8], line2=g[7], textPoint=(42.3801002502441,
-                                                              28.9388751983643), value=30.0)
-        s.ObliqueDimension(vertex1=v[15], vertex2=v[16], textPoint=(42.9805793762207,
-                                                                    27.3775291442871), value=edge)
-        s.ObliqueDimension(vertex1=v[17], vertex2=v[18], textPoint=(42.7014846801758,
-                                                                    28.466251373291), value=edge)
-        s.ObliqueDimension(vertex1=v[19], vertex2=v[20], textPoint=(42.3716430664063,
-                                                                    29.2511444091797), value=edge)
-        s.AngularDimension(line1=g[9], line2=g[7], textPoint=(42.1263771057129,
-                                                              28.2552585601807), value=60.0)
-        s.ObliqueDimension(vertex1=v[22], vertex2=v[23], textPoint=(42.4562187194824,
-                                                                    27.7741947174072), value=0.5*edge)
-        s.AngularDimension(line1=g[4], line2=g[11], textPoint=(45.0949401855469,
-                                                               27.5800819396973), value=30.0)
-        s.AngularDimension(line1=g[11], line2=g[10], textPoint=(45.6531295776367,
-                                                                28.297456741333), value=30.0)
-        s.AngularDimension(line1=g[10], line2=g[12], textPoint=(46.0083427429199,
-                                                                28.1961803436279), value=60.0)
-        s.ObliqueDimension(vertex1=v[29], vertex2=v[30], textPoint=(44.815845489502,
-                                                                    27.934549331665), value=edge)
-        s.ObliqueDimension(vertex1=v[31], vertex2=v[32], textPoint=(45.6531295776367,
-                                                                    27.7826347351074), value=0.5*edge)
-        s.ObliqueDimension(vertex1=v[27], vertex2=v[28], textPoint=(45.4247779846191,
-                                                                    28.4831314086914), value=edge)
-        s.AngularDimension(line1=g[8], line2=g[13], textPoint=(42.2943534851074,
-                                                               30.3766345977783), value=30.0)
-        s.AngularDimension(line1=g[13], line2=g[14], textPoint=(42.8667526245117,
-                                                                30.9081687927246), value=30.0)
-        s.AngularDimension(line1=g[14], line2=g[15], textPoint=(43.6538009643555,
-                                                                31.0033683776855), value=30.0)
-        s.ObliqueDimension(vertex1=v[36], vertex2=v[37], textPoint=(42.6521034240723,
-                                                                    30.1069030761719), value=edge)
-        s.ObliqueDimension(vertex1=v[38], vertex2=v[39], textPoint=(43.2245025634766,
-                                                                    30.6939678192139), value=edge)
-        s.ObliqueDimension(vertex1=v[40], vertex2=v[41], textPoint=(44.2000007629395,
-                                                                    31.0687103271484), value=edge)
-        s.HorizontalConstraint(entity=g[18], addUndoState=False)
-        s.AngularDimension(line1=g[15], line2=g[16], textPoint=(44.836498260498,
-                                                                31.1547222137451), value=30.0)
-        s.AngularDimension(line1=g[16], line2=g[17], textPoint=(45.6321144104004,
-                                                                30.5460262298584), value=30.0)
-        s.ObliqueDimension(vertex1=v[44], vertex2=v[45], textPoint=(44.8829078674316,
-                                                                    30.810676574707), value=edge)
-        s.ObliqueDimension(vertex1=v[46], vertex2=v[47], textPoint=(45.479621887207,
-                                                                    30.2350635528564), value=edge)
-        s.ObliqueDimension(vertex1=v[49], vertex2=v[50], textPoint=(45.784610748291,
-                                                                    30.5857238769531), value=0.5*edge)
-        s.AngularDimension(line1=g[19], line2=g[13], textPoint=(42.4629020690918,
-                                                                30.5923404693604), value=60.0)
-        s.ObliqueDimension(vertex1=v[53], vertex2=v[54], textPoint=(42.3833389282227,
-                                                                    30.8966884613037), value=0.5*edge)
-        s.AngularDimension(line1=g[20], line2=g[15], textPoint=(43.9546852111816,
-                                                                31.4127559661865), value=60.0)
-        s.AngularDimension(line1=g[21], line2=g[15], textPoint=(44.2994537353516,
-                                                                31.3532104492188), value=60.0)
-        p = mdb.models['Model-1'].Part(name='Part-1',
-                                             dimensionality=TWO_D_PLANAR, type=DEFORMABLE_BODY)
+        s.Spot(point=(edge * 40.0, edge * 20.0))
+        s.Spot(point=(edge * 42.5, edge * 20.0))
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=184.898,
+                                                        farPlane=192.225, width=24.0357, height=12.3788,
+                                                        cameraPosition=(
+                                                            40.8794, 21.5074, 188.562),
+                                                        cameraTarget=(40.8794, 21.5074, 0))
+        s.Line(point1=(edge * 40.0, edge * 20.0), point2=(edge * 42.5, edge * 20.0))
+        s.HorizontalConstraint(entity=g[2], addUndoState=False)
+        s.ObliqueDimension(vertex1=v[2], vertex2=v[3], textPoint=(edge * 41.2890586853027,
+                                                                  edge * 20.7465476989746), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=186.818,
+                                                        farPlane=190.305, width=11.4391, height=5.89132,
+                                                        cameraPosition=(
+                                                            41.8348, 20.251, 188.562),
+                                                        cameraTarget=(41.8348, 20.251, 0))
+        s.Spot(point=(edge * 41.997257232666, edge * 19.2619190216064))
+        s.Line(point1=(edge * 41.5, edge * 20.0), point2=(edge * 41.997257232666, edge * 19.2619190216064))
+        s.Line(point1=(edge * 42.5, edge * 20.0), point2=(edge * 41.997257232666, edge * 19.2619190216064))
+        s.AngularDimension(line1=g[2], line2=g[3], textPoint=(edge * 41.661449432373,
+                                                              edge * 19.8564548492432), value=60.0)
+        s.AngularDimension(line1=g[2], line2=g[4], textPoint=(edge * 42.3113975524902,
+                                                              edge * 19.8564548492432), value=60.0)
+        s.Spot(point=(edge * 42.0839157104492, edge * 18.3538990020752))
+        s.Line(point1=(edge * 42.0, edge * 19.1339745962156), point2=(edge * 42.0839157104492,
+                                                                      edge * 18.3538990020752))
+        s.AngularDimension(line1=g[4], line2=g[5], textPoint=(edge * 42.1489105224609,
+                                                              edge * 19.0457229614258), value=150.0)
+        s.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(edge * 41.7806091308594,
+                                                                    edge * 18.7862892150879), value=edge * 0.5)
+        s.Spot(point=(edge * 43.0913352966309, edge * 20.2780361175537))
+        s.Line(point1=(edge * 42.5, edge * 20.0), point2=(edge * 43.0913352966309, edge * 20.2780361175537))
+        s.AngularDimension(line1=g[4], line2=g[6], textPoint=(edge * 42.603874206543,
+                                                              edge * 19.921314239502), value=150.0)
+        s.ObliqueDimension(vertex1=v[13], vertex2=v[14], textPoint=(edge * 42.9396820068359,
+                                                                    edge * 19.8888835906982), value=edge)
+        s.Spot(point=(edge * 43.9362678527832, edge * 21.0671463012695))
+        s.Line(point1=(edge * 43.3660254037844, edge * 20.5), point2=(edge * 43.9362678527832,
+                                                                      edge * 21.0671463012695))
+        s.AngularDimension(line1=g[6], line2=g[7], textPoint=(edge * 43.2754898071289,
+                                                              edge * 20.6347579956055), value=150.0)
+        s.ObliqueDimension(vertex1=v[16], vertex2=v[17], textPoint=(edge * 43.849609375,
+                                                                    edge * 20.6563758850098), value=edge)
+        s.Spot(point=(edge * 40.8490142822266, edge * 20.3428936004639))
+        s.Line(point1=(edge * 41.5, edge * 20.0), point2=(edge * 40.8490142822266, edge * 20.3428936004639))
+        s.AngularDimension(line1=g[2], line2=g[8], textPoint=(edge * 41.1848220825195,
+                                                              edge * 20.083459854126), value=30.0)
+        s.ObliqueDimension(vertex1=v[19], vertex2=v[20], textPoint=(edge * 41.0548324584961,
+                                                                    edge * 19.9105033874512), value=edge)
+        s.Spot(point=(edge * 40.1990661621094, edge * 21.1536254882813))
+        s.Line(point1=(edge * 40.6339745962156, edge * 20.5), point2=(edge * 40.1990661621094,
+                                                                      edge * 21.1536254882813))
+        s.AngularDimension(line1=g[8], line2=g[9], textPoint=(edge * 40.3182258605957,
+                                                              edge * 20.7860946655273), value=30.0)
+        s.ObliqueDimension(vertex1=v[22], vertex2=v[23], textPoint=(edge * 40.144905090332,
+                                                                    edge * 20.7104244232178), value=edge)
+        s.Spot(point=(edge * 40.0582466125488, edge * 20.429370880127))
+        s.Line(point1=(edge * 40.6339745962156, edge * 20.5), point2=(edge * 40.0582466125488,
+                                                                      edge * 20.429370880127))
+        s.AngularDimension(line1=g[10], line2=g[9], textPoint=(edge * 40.2098999023438,
+                                                               edge * 20.6888065338135), value=60.0)
+        s.ObliqueDimension(vertex1=v[25], vertex2=v[26], textPoint=(edge * 40.3182258605957,
+                                                                    edge * 20.2347965240479), value=edge * 0.5)
+        s.Spot(point=(edge * 40.144905090332, edge * 22.0832633972168))
+        s.Line(point1=(edge * 40.1339745962156, edge * 21.3660254037844), point2=(edge * 40.144905090332,
+                                                                                  edge * 22.0832633972168))
+        s.AngularDimension(line1=g[9], line2=g[11], textPoint=(edge * 40.0474128723145,
+                                                               edge * 21.640064239502), value=30.0)
+        s.ObliqueDimension(vertex1=v[28], vertex2=v[29], textPoint=(edge * 39.8524284362793,
+                                                                    edge * 21.726541519165), value=edge)
+        s.Spot(point=(edge * 40.5565376281738, edge * 23.0453319549561))
+        s.Line(point1=(edge * 40.1339745962156, edge * 22.3660254037844), point2=(edge * 40.5565376281738,
+                                                                                  edge * 23.0453319549561))
+        s.AngularDimension(line1=g[11], line2=g[12], textPoint=(edge * 40.3073921203613,
+                                                                edge * 22.3426990509033), value=150.0)
+        s.ObliqueDimension(vertex1=v[31], vertex2=v[32], textPoint=(edge * 40.5998687744141,
+                                                                    edge * 22.5805130004883), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.282,
+                                                        farPlane=189.841, width=8.39519, height=4.32366,
+                                                        cameraPosition=(
+                                                            42.3066, 22.8246, 188.562),
+                                                        cameraTarget=(42.3066, 22.8246, 0))
+        s.Spot(point=(edge * 41.1935691833496, edge * 23.9472007751465))
+        s.Line(point1=(edge * 40.6339745962156, edge * 23.2320508075688), point2=(edge * 41.1935691833496,
+                                                                                  edge * 23.9472007751465))
+        s.AngularDimension(line1=g[12], line2=g[13], textPoint=(edge * 40.9391708374023,
+                                                                edge * 23.756799697876), value=30.0)
+        s.ObliqueDimension(vertex1=v[34], vertex2=v[35], textPoint=(edge * 41.1220207214355,
+                                                                    edge * 23.2332000732422), value=edge)
+        s.Spot(point=(edge * 42.401969909668, edge * 23.756799697876))
+        s.Line(point1=(edge * 41.5, edge * 23.7320508075688), point2=(edge * 42.401969909668,
+                                                                      edge * 23.756799697876))
+        s.AngularDimension(line1=g[13], line2=g[14], textPoint=(edge * 41.8136672973633,
+                                                                edge * 23.8202667236328), value=30.0)
+        s.ObliqueDimension(vertex1=v[37], vertex2=v[38], textPoint=(edge * 41.9249687194824,
+                                                                    edge * 23.5664005279541), value=edge)
+        s.Spot(point=(edge * 43.2764663696289, edge * 23.3601341247559))
+        s.Line(point1=(edge * 42.5, edge * 23.7320508075688), point2=(edge * 43.2764663696289,
+                                                                      edge * 23.3601341247559))
+        s.AngularDimension(line1=g[14], line2=g[15], textPoint=(edge * 42.8551177978516,
+                                                                edge * 23.661600112915), value=30.0)
+        s.ObliqueDimension(vertex1=v[40], vertex2=v[41], textPoint=(edge * 42.7517700195313,
+                                                                    edge * 23.3283996582031), value=edge)
+        s.Spot(point=(edge * 43.9045181274414, edge * 22.3922691345215))
+        s.Line(point1=(edge * 43.3660254037844, edge * 23.2320508075688), point2=(edge * 43.9045181274414,
+                                                                                  edge * 22.3922691345215))
+        s.AngularDimension(line1=g[15], line2=g[16], textPoint=(edge * 43.5865173339844,
+                                                                edge * 23.0190010070801), value=30.0)
+        s.ObliqueDimension(vertex1=v[43], vertex2=v[44], textPoint=(edge * 43.3639183044434,
+                                                                    edge * 22.6699352264404), value=edge)
+        s.Spot(point=(edge * 40.1839218139648, edge * 23.1935348510742))
+        s.Line(point1=(edge * 40.6339745962156, edge * 23.2320508075688), point2=(edge * 40.1839218139648,
+                                                                                  edge * 23.1935348510742))
+        s.AngularDimension(line1=g[17], line2=g[12], textPoint=(edge * 40.4621696472168,
+                                                                edge * 23.1380004882813), value=60.0)
+        s.ObliqueDimension(vertex1=v[46], vertex2=v[47], textPoint=(edge * 40.3667678833008,
+                                                                    edge * 23.4394664764404), value=edge * 0.5)
+        s.Spot(point=(edge * 43.8329658508301, edge * 23.2332000732422))
+        s.Line(point1=(edge * 43.3660254037844, edge * 23.2320508075688), point2=(edge * 43.8329658508301,
+                                                                                  edge * 23.2332000732422))
+        s.AngularDimension(line1=g[18], line2=g[16], textPoint=(edge * 43.6501159667969,
+                                                                edge * 23.0745334625244), value=60.0)
+        s.ObliqueDimension(vertex1=v[49], vertex2=v[50], textPoint=(edge * 43.6342163085938,
+                                                                    edge * 23.4394664764404), value=edge * 0.5)
+        s.Spot(point=(edge * 42.0203666687012, edge * 24.3597316741943))
+        s.Line(point1=(edge * 41.5, edge * 23.7320508075688), point2=(edge * 42.0203666687012,
+                                                                      edge * 24.3597316741943))
+        s.AngularDimension(line1=g[19], line2=g[14], textPoint=(edge * 41.7262191772461,
+                                                                edge * 23.8519992828369), value=60.0)
+        s.Line(point1=(edge * 41.9076655308654, edge * 24.4381482195221), point2=(edge * 42.5,
+                                                                                  edge * 23.7320508075688))
+        s.AngularDimension(line1=g[20], line2=g[14], textPoint=(edge * 42.2986183166504,
+                                                                edge * 23.8281993865967), value=60.0)
+        s.Spot(point=(edge * 42.0203666687012, edge * 24.9309310913086))
+        s.Line(point1=(edge * 42.0203666687012, edge * 24.9309310913086), point2=(edge * 42.0,
+                                                                                  edge * 24.5980762113532))
+        s.AngularDimension(line1=g[21], line2=g[19], textPoint=(edge * 41.8454666137695,
+                                                                edge * 24.5501327514648), value=150.0)
+        s.ObliqueDimension(vertex1=v[57], vertex2=v[58], textPoint=(edge * 42.2588691711426,
+                                                                    edge * 24.7167320251465), value=edge * 0.5)
+        s.Spot(point=(edge * 44.0031471252441, edge * 20.6134433746338))
+        s.Line(point1=(edge * 43.3660254037844, edge * 20.5), point2=(edge * 44.0031471252441,
+                                                                      edge * 20.6134433746338))
+        s.AngularDimension(line1=g[22], line2=g[7], textPoint=(edge * 43.560359954834,
+                                                               edge * 20.6632308959961), value=60.0)
+        s.ObliqueDimension(vertex1=v[60], vertex2=v[61], textPoint=(edge * 43.6788520812988,
+                                                                    edge * 20.246265411377), value=edge * 0.5)
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
         p = mdb.models['Model-1'].parts['Part-1']
         p.BaseWire(sketch=s)
         s.unsetPrimaryObject()
@@ -444,138 +474,141 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
-
     if structure == 'f':
-        session.viewports['Viewport: 1'].setValues(displayedObject=None)
-        s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
-                                                             sheetSize=200.0)
-        g, v, d, c = s1.geometry, s1.vertices, s1.dimensions, s1.constraints
-        s1.setPrimaryObject(option=STANDALONE)
-        s1.Spot(point=(55.0, 40.0))
-        s1.Spot(point=(55.0, 35.0))
-        s1.Spot(point=(60.0, 37.5))
-        s1.Spot(point=(50.0, 37.5))
-        s1.Line(point1=(50.0, 37.5), point2=(55.0, 40.0))
-        s1.Line(point1=(55.0, 40.0), point2=(60.0, 37.5))
-        s1.Line(point1=(60.0, 37.5), point2=(55.0, 35.0))
-        s1.Line(point1=(55.0, 35.0), point2=(50.0, 37.5))
-        s1.Line(point1=(55.0, 40.0), point2=(55.0, 35.0))
-        s1.VerticalConstraint(entity=g[6], addUndoState=False)
-        s1.ObliqueDimension(vertex1=v[4], vertex2=v[5], textPoint=(50.331600189209,
-                                                                   41.4930267333984), value=edge)
-        s1.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(53.1605529785156,
-                                                                     37.0915794372559), value=edge)
-        s1.ObliqueDimension(vertex1=v[6], vertex2=v[7], textPoint=(57.8512573242188,
-                                                                   40.5073471069336), value=edge)
-        s1.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(54.9354972839355,
-                                                                   38.425407409668), value=edge)
-        s1.ObliqueDimension(vertex1=v[12], vertex2=v[13], textPoint=(36.1081161499023,
-                                                                     59.3965301513672), value=edge)
-        s1.Spot(point=(17.3265018463135, 70.5950317382813))
-        s1.Spot(point=(18.2375373840332, 70.1096496582031))
-        s1.Spot(point=(15.7823734283447, 70.1250610351563))
-        s1.Spot(point=(16.6779670715332, 70.5410995483398))
-        s1.Spot(point=(18.3070240020752, 68.7998886108398))
-        s1.Spot(point=(17.3265018463135, 68.3761444091797))
-        s1.Spot(point=(16.5930404663086, 68.2913970947266))
-        s1.Spot(point=(15.7592105865479, 68.9462738037109))
-        s1.Line(point1=(16.130724222743, 69.5027724506163), point2=(15.7823734283447,
-                                                                    70.1250610351563))
-        s1.Line(point1=(15.7823734283447, 70.1250610351563), point2=(16.6779670715332,
-                                                                     70.5410995483398))
-        s1.Line(point1=(16.6779670715332, 70.5410995483398), point2=(16.9967496265275,
-                                                                     70.0027724506164))
-        s1.Line(point1=(16.9967496265275, 70.0027724506164), point2=(17.3265018463135,
-                                                                     70.5950317382813))
-        s1.Line(point1=(17.3265018463135, 70.5950317382813), point2=(18.2375373840332,
-                                                                     70.1096496582031))
-        s1.Line(point1=(18.2375373840332, 70.1096496582031), point2=(17.8627750303123,
-                                                                     69.5027724506163))
-        s1.Line(point1=(17.8627750303123, 69.5027724506163), point2=(18.3070240020752,
-                                                                     68.7998886108398))
-        s1.Line(point1=(18.3070240020752, 68.7998886108398), point2=(17.3265018463135,
-                                                                     68.3761444091797))
-        s1.Line(point1=(17.3265018463135, 68.3761444091797), point2=(16.9967496265275,
-                                                                     69.0027724506164))
-        s1.Line(point1=(16.9967496265275, 69.0027724506164), point2=(16.5930404663086,
-                                                                     68.2913970947266))
-        s1.Line(point1=(16.5930404663086, 68.2913970947266), point2=(15.7592105865479,
-                                                                     68.9462738037109))
-        s1.Line(point1=(15.7592105865479, 68.9462738037109), point2=(16.130724222743,
-                                                                     69.5027724506163))
-        s1.AngularDimension(line1=g[7], line2=g[2], textPoint=(16.2077598571777,
-                                                               69.6178817749023), value=90.0)
-        s1.AngularDimension(line1=g[8], line2=g[7], textPoint=(15.8614177703857,
-                                                               70.0819931030273), value=90.0)
-        s1.AngularDimension(line1=g[8], line2=g[9], textPoint=(16.6415023803711,
-                                                               70.4489822387695), value=90.0)
-        s1.ObliqueDimension(vertex1=v[26], vertex2=v[27], textPoint=(16.7494525909424,
-                                                                     70.2425079345703), value=edge)
-        s1.AngularDimension(line1=g[10], line2=g[3], textPoint=(17.1070384979248,
-                                                                70.0068664550781), value=90.0)
-        s1.AngularDimension(line1=g[11], line2=g[10], textPoint=(17.3634204864502,
-                                                                 70.4871368408203), value=90.0)
-        s1.ObliqueDimension(vertex1=v[28], vertex2=v[29], textPoint=(17.2982006072998,
-                                                                     70.2335357666016), value=edge)
-        s1.AngularDimension(line1=g[12], line2=g[11], textPoint=(18.2599143981934,
-                                                                 70.3364028930664), value=90.0)
-        s1.AngularDimension(line1=g[13], line2=g[14], textPoint=(18.14990234375,
-                                                                 68.8344116210938), value=90.0)
-        s1.AngularDimension(line1=g[14], line2=g[15], textPoint=(17.3584766387939,
-                                                                 68.5027084350586), value=90.0)
-        s1.AngularDimension(line1=g[4], line2=g[13], textPoint=(17.8570747375488,
-                                                                69.3793487548828), value=90.0)
-        s1.ObliqueDimension(vertex1=v[34], vertex2=v[35], textPoint=(17.8333320617676,
-                                                                     69.0792388916016), value=edge)
-        s1.AngularDimension(line1=g[17], line2=g[16], textPoint=(16.5551815032959,
-                                                                 68.4355773925781), value=90.0)
-        s1.AngularDimension(line1=g[18], line2=g[17], textPoint=(15.8626852035522,
-                                                                 68.9647216796875), value=90.0)
-        s1.AngularDimension(line1=g[5], line2=g[16], textPoint=(16.8796653747559,
-                                                                68.9489288330078), value=90.0)
-        s1.ObliqueDimension(vertex1=v[40], vertex2=v[41], textPoint=(16.559139251709,
-                                                                     68.7870254516602), value=edge)
-        s1.Line(point1=(16.4967496265275, 68.1367470468319), point2=(17.4967496265273,
-                                                                     68.1367470468318))
-        s1.HorizontalConstraint(entity=g[19], addUndoState=False)
-        s1.delete(objectList=(d[4],))
-        s1.Spot(point=(18.3912200927734, 69.4988174438477))
-        s1.Spot(point=(15.6209583282471, 69.5066452026367))
-        s1.Spot(point=(15.6366539001465, 68.1909866333008))
-        s1.Spot(point=(15.6131105422974, 70.8379669189453))
-        s1.Line(point1=(15.630724222743, 70.3687978544007), point2=(15.6131105422974,
-                                                                    70.8379669189453))
-        s1.Line(point1=(15.6307242227431, 68.6367470468319), point2=(15.6366539001465,
-                                                                     68.1909866333008))
-        s1.Line(point1=(16.130724222743, 69.5027724506163), point2=(15.6209583282471,
-                                                                    69.5066452026367))
-        s1.Line(point1=(17.8627750303123, 69.5027724506163), point2=(18.3912200927734,
-                                                                     69.4988174438477))
-        s1.AngularDimension(line1=g[23], line2=g[13], textPoint=(18.0145282745361,
-                                                                 69.3970108032227), value=60.0)
-        s1.ObliqueDimension(vertex1=v[58], vertex2=v[59], textPoint=(18.2185707092285,
-                                                                     69.6789321899414), value=0.5*edge)
-        s1.AngularDimension(line1=g[7], line2=g[22], textPoint=(15.9270210266113,
-                                                                69.6084518432617), value=60.0)
-        s1.ObliqueDimension(vertex1=v[56], vertex2=v[57], textPoint=(15.814754486084,
-                                                                     69.3057708740234), value=0.5*edge)
-        s1.AngularDimension(line1=g[21], line2=g[17], textPoint=(15.7047185897827,
-                                                                 68.5388946533203), value=60.0)
-        s1.ObliqueDimension(vertex1=v[54], vertex2=v[55], textPoint=(15.9371995925903,
-                                                                     68.2858123779297), value=0.5*edge)
-        s1.AngularDimension(line1=g[20], line2=g[8], textPoint=(15.7014322280884,
-                                                                70.469856262207), value=60.0)
-        s1.ObliqueDimension(vertex1=v[52], vertex2=v[53], textPoint=(15.4659738540649,
-                                                                     70.5839157104492), value=0.5*edge)
-        p = mdb.models['Model-1'].Part(name='Part-1',
-                                               dimensionality=TWO_D_PLANAR, type=DEFORMABLE_BODY)
+        s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
+                                                    sheetSize=200.0)
+        g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
+        s.setPrimaryObject(option=STANDALONE)
+        s.Spot(point=(edge * 45.0, edge * 25.0))
+        s.Spot(point=(edge * 45.0, edge * 22.5))
+        s.Line(point1=(edge * 45.0, edge * 25.0), point2=(edge * 45.0, edge * 22.5))
+        s.VerticalConstraint(entity=g[2], addUndoState=False)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=182.168,
+                                                        farPlane=194.955, width=41.9475, height=21.6037,
+                                                        cameraPosition=(
+                                                            45.2945, 22.9523, 188.562),
+                                                        cameraTarget=(45.2945, 22.9523, 0))
+        s.ObliqueDimension(vertex1=v[2], vertex2=v[3], textPoint=(edge * 44.0630722045898,
+                                                                  edge * 23.6856727600098), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=185.873,
+                                                        farPlane=191.25, width=17.6399, height=9.08484, cameraPosition=(
+                45.7044, 23.0366, 188.562), cameraTarget=(45.7044, 23.0366, 0))
+        s.Spot(point=(edge * 46.0886306762695, edge * 23.1282997131348))
+        s.Line(point1=(edge * 45.0, edge * 23.5), point2=(edge * 46.0886306762695, edge * 23.1282997131348))
+        s.AngularDimension(line1=g[2], line2=g[3], textPoint=(edge * 45.1865882873535,
+                                                              edge * 23.2283172607422), value=60.0)
+        s.ObliqueDimension(vertex1=v[5], vertex2=v[6], textPoint=(edge * 45.9215850830078,
+                                                                  edge * 23.5450344085693), value=edge)
+        s.Line(point1=(edge * 45.0, edge * 22.5), point2=(edge * 45.8660254037844, edge * 23.0))
+        s.Spot(point=(edge * 43.9504585266113, edge * 23.0449523925781))
+        s.Line(point1=(edge * 45.0, edge * 23.5), point2=(edge * 43.9504585266113, edge * 23.0449523925781))
+        s.AngularDimension(line1=g[5], line2=g[2], textPoint=(edge * 44.9193153381348,
+                                                              edge * 23.3616714477539), value=60.0)
+        s.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(edge * 44.234432220459,
+                                                                    edge * 23.595043182373), value=edge)
+        s.Line(point1=(edge * 45.0, edge * 22.5), point2=(edge * 44.1339745962156, edge * 23.0))
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=186.818,
+                                                        farPlane=190.305, width=11.4391, height=5.89132,
+                                                        cameraPosition=(
+                                                            45.5038, 23.2199, 188.562),
+                                                        cameraTarget=(45.5038, 23.2199, 0))
+        s.Spot(point=(edge * 43.6297378540039, edge * 23.8955001831055))
+        s.Line(point1=(edge * 44.1339745962156, edge * 23.0), point2=(edge * 43.6297378540039,
+                                                                      edge * 23.8955001831055))
+        s.AngularDimension(line1=g[7], line2=g[5], textPoint=(edge * 44.1605262756348,
+                                                              edge * 23.23610496521), value=90.0)
+        s.ObliqueDimension(vertex1=v[15], vertex2=v[16], textPoint=(edge * 43.6189041137695,
+                                                                    edge * 23.3009643554688), value=edge)
+        s.Spot(point=(edge * 44.431339263916, edge * 24.0252170562744))
+        s.Line(point1=(edge * 43.6339745962156, edge * 23.8660254037844), point2=(edge * 44.431339263916,
+                                                                                  edge * 24.0252170562744))
+        s.AngularDimension(line1=g[8], line2=g[7], textPoint=(edge * 43.8355522155762,
+                                                              edge * 23.7657833099365), value=90.0)
+        s.Line(point1=(edge * 44.3381402703574, edge * 24.2725756453043), point2=(edge * 45.0, edge * 23.5))
+        s.AngularDimension(line1=g[8], line2=g[9], textPoint=(edge * 44.3338470458984,
+                                                              edge * 24.1116943359375), value=90.0)
+        s.Spot(point=(edge * 45.4712562561035, edge * 24.1225051879883))
+        s.Line(point1=(edge * 45.0, edge * 23.5), point2=(edge * 45.4712562561035, edge * 24.1225051879883))
+        s.AngularDimension(line1=g[10], line2=g[3], textPoint=(edge * 45.1896133422852,
+                                                               edge * 23.4955387115479), value=90.0)
+        s.ObliqueDimension(vertex1=v[23], vertex2=v[24], textPoint=(edge * 45.5037536621094,
+                                                                    edge * 23.7117347717285), value=edge)
+        s.Spot(point=(edge * 46.6303291320801, edge * 24.1981735229492))
+        s.Line(point1=(edge * 45.5, edge * 24.3660254037844), point2=(edge * 46.6303291320801,
+                                                                      edge * 24.1981735229492))
+        s.Line(point1=(edge * 46.6303291320801, edge * 24.1981735229492), point2=(edge * 45.8660254037844,
+                                                                                  edge * 23.0))
+        s.AngularDimension(line1=g[11], line2=g[12], textPoint=(edge * 46.3270225524902,
+                                                                edge * 24.0684566497803), value=90.0)
+        s.Spot(point=(edge * 46.4895095825195, edge * 22.4902324676514))
+        s.Line(point1=(edge * 45.8660254037844, edge * 23.0), point2=(edge * 46.4895095825195,
+                                                                      edge * 22.4902324676514))
+        s.AngularDimension(line1=g[4], line2=g[13], textPoint=(edge * 45.9153861999512,
+                                                               edge * 22.8469543457031), value=90.0)
+        s.ObliqueDimension(vertex1=v[31], vertex2=v[32], textPoint=(edge * 45.8178939819336,
+                                                                    edge * 22.4253730773926), value=edge)
+        s.Spot(point=(edge * 45.3087692260742, edge * 21.387638092041))
+        s.Line(point1=(edge * 46.3660254037844, edge * 22.1339745962156), point2=(edge * 45.3087692260742,
+                                                                                  edge * 21.387638092041))
+        s.Line(point1=(edge * 45.3087692260742, edge * 21.387638092041), point2=(edge * 45.0, edge * 22.5))
+        s.AngularDimension(line1=g[15], line2=g[14], textPoint=(edge * 45.4387588500977,
+                                                                edge * 21.6903095245361), value=90.0)
+        s.AngularDimension(line1=g[13], line2=g[14], textPoint=(edge * 46.1537017822266,
+                                                                edge * 22.1983680725098), value=90.0)
+        s.Spot(point=(edge * 44.431339263916, edge * 21.9173145294189))
+        s.Line(point1=(edge * 45.0, edge * 22.5), point2=(edge * 44.431339263916, edge * 21.9173145294189))
+        s.AngularDimension(line1=g[6], line2=g[16], textPoint=(edge * 44.7454795837402,
+                                                               edge * 22.3821353912354), value=90.0)
+        s.ObliqueDimension(vertex1=v[39], vertex2=v[40], textPoint=(edge * 44.5071678161621,
+                                                                    edge * 22.3497047424316), value=edge)
+        s.Spot(point=(edge * 43.2289352416992, edge * 22.1659393310547))
+        s.Line(point1=(edge * 44.5, edge * 21.6339745962156), point2=(edge * 43.2289352416992,
+                                                                      edge * 22.1659393310547))
+        s.Line(point1=(edge * 43.2289352416992, edge * 22.1659393310547), point2=(edge * 44.1339745962156,
+                                                                                  edge * 23.0))
+        s.AngularDimension(line1=g[18], line2=g[17], textPoint=(edge * 43.4455833435059,
+                                                                edge * 22.2091789245605), value=90.0)
+        s.AngularDimension(line1=g[17], line2=g[16], textPoint=(edge * 44.4205055236816,
+                                                                edge * 21.8740768432617), value=90.0)
+        s.Line(point1=(edge * 44.5, edge * 21.6339745962156), point2=(edge * 45.5, edge * 21.6339745962156))
+        s.HorizontalConstraint(entity=g[19], addUndoState=False)
+        s.delete(objectList=(d[14],))
+        s.Spot(point=(edge * 43.5105781555176, edge * 21.6362609863281))
+        s.Line(point1=(edge * 43.6339745962156, edge * 22.1339745962156), point2=(edge * 43.5105781555176,
+                                                                                  edge * 21.6362609863281))
+        s.AngularDimension(line1=g[20], line2=g[17], textPoint=(edge * 43.7705574035645,
+                                                                edge * 21.8632659912109), value=60.0)
+        s.ObliqueDimension(vertex1=v[49], vertex2=v[50], textPoint=(edge * 43.3805885314941,
+                                                                    edge * 21.8200283050537), value=edge * 0.5)
+        s.Spot(point=(edge * 43.6838989257813, edge * 24.317081451416))
+        s.Line(point1=(edge * 43.6339745962156, edge * 23.8660254037844), point2=(edge * 43.6838989257813,
+                                                                                  edge * 24.317081451416))
+        s.AngularDimension(line1=g[21], line2=g[8], textPoint=(edge * 43.8030548095703,
+                                                               edge * 24.1116943359375), value=60.0)
+        s.ObliqueDimension(vertex1=v[52], vertex2=v[53], textPoint=(edge * 43.3589248657227,
+                                                                    edge * 24.0576457977295), value=edge * 0.5)
+        s.Spot(point=(edge * 43.4997482299805, edge * 23.0199108123779))
+        s.Line(point1=(edge * 44.1339745962156, edge * 23.0), point2=(edge * 43.4997482299805,
+                                                                      edge * 23.0199108123779))
+        s.AngularDimension(line1=g[22], line2=g[18], textPoint=(edge * 43.8788833618164,
+                                                                edge * 22.814525604248), value=60.0)
+        s.ObliqueDimension(vertex1=v[55], vertex2=v[56], textPoint=(edge * 43.5539093017578,
+                                                                    edge * 23.3658218383789), value=edge * 0.5)
+        s.Spot(point=(edge * 46.4786758422852, edge * 22.998291015625))
+        s.Line(point1=(edge * 45.8660254037844, edge * 23.0), point2=(edge * 46.4786758422852,
+                                                                      edge * 22.998291015625))
+        s.AngularDimension(line1=g[23], line2=g[13], textPoint=(edge * 46.0887069702148,
+                                                                edge * 22.8793830871582), value=60.0)
+        s.ObliqueDimension(vertex1=v[58], vertex2=v[59], textPoint=(edge * 46.4245147705078,
+                                                                    edge * 23.268533706665), value=edge * 0.5)
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
         p = mdb.models['Model-1'].parts['Part-1']
-        p.BaseWire(sketch=s1)
-        s1.unsetPrimaryObject()
+        p.BaseWire(sketch=s)
+        s.unsetPrimaryObject()
         p = mdb.models['Model-1'].parts['Part-1']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
-
 
     if structure == 'g':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
@@ -664,156 +697,213 @@ def create_structure(structure, edge):
         del mdb.models['Model-1'].sketches['__profile__']
 
     if structure == 'h':
+        mdb.models.changeKey(fromName='Model-1', toName='Model-1')
+        session.viewports['Viewport: 1'].setValues(displayedObject=None)
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                             sheetSize=200.0)
         g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
         s.setPrimaryObject(option=STANDALONE)
-        s.Spot(point=(47.5, 35.0))
-        s.Spot(point=(45.0, 30.0))
-        s.Spot(point=(50.0, 30.0))
-        s.Spot(point=(45.0, 25.0))
-        s.Spot(point=(50.0, 25.0))
-        s.Spot(point=(47.5, 20.0))
-        s.Line(point1=(45.0, 25.0), point2=(45.0, 30.0))
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=175.073,
+                                                        farPlane=202.051, width=100.159, height=51.5834,
+                                                        cameraPosition=(
+                                                            54.5254, 27.1943, 188.562),
+                                                        cameraTarget=(54.5254, 27.1943, 0))
+        s.Spot(point=(edge * 47.5, edge * 35.0))
+        s.Spot(point=(edge * 45.0, edge * 30.0))
+        s.Spot(point=(edge * 50.0, edge * 30.0))
+        s.Spot(point=(edge * 45.0, edge * 25.0))
+        s.Spot(point=(edge * 50.0, edge * 25.0))
+        s.Spot(point=(edge * 47.5, edge * 20.0))
+        s.Line(point1=(edge * 45.0, edge * 25.0), point2=(edge * 45.0, edge * 30.0))
         s.VerticalConstraint(entity=g[2], addUndoState=False)
-        s.Line(point1=(45.0, 30.0), point2=(47.5, 35.0))
-        s.Line(point1=(47.5, 35.0), point2=(50.0, 30.0))
-        s.Line(point1=(50.0, 30.0), point2=(50.0, 25.0))
+        s.Line(point1=(edge * 45.0, edge * 30.0), point2=(edge * 47.5, edge * 35.0))
+        s.Line(point1=(edge * 47.5, edge * 35.0), point2=(edge * 50.0, edge * 30.0))
+        s.Line(point1=(edge * 50.0, edge * 30.0), point2=(edge * 50.0, edge * 25.0))
         s.VerticalConstraint(entity=g[5], addUndoState=False)
-        s.Line(point1=(50.0, 25.0), point2=(47.5, 20.0))
-        s.Line(point1=(47.5, 20.0), point2=(45.0, 25.0))
-        s.Line(point1=(45.0, 30.0), point2=(50.0, 30.0))
+        s.Line(point1=(edge * 50.0, edge * 25.0), point2=(edge * 47.5, edge * 20.0))
+        s.Line(point1=(edge * 47.5, edge * 20.0), point2=(edge * 45.0, edge * 25.0))
+        s.Line(point1=(edge * 45.0, edge * 30.0), point2=(edge * 50.0, edge * 30.0))
         s.HorizontalConstraint(entity=g[8], addUndoState=False)
-        s.Line(point1=(45.0, 25.0), point2=(50.0, 25.0))
+        s.Line(point1=(edge * 45.0, edge * 25.0), point2=(edge * 50.0, edge * 25.0))
         s.HorizontalConstraint(entity=g[9], addUndoState=False)
-        s.ObliqueDimension(vertex1=v[6], vertex2=v[7], textPoint=(43.3270835876465,
-                                                                  27.537712097168), value=edge)
-        s.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(44.6553268432617,
-                                                                  30.3415641784668), value=edge)
-        s.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(48.2824516296387,
-                                                                    28.7102317810059), value=edge)
-        s.ObliqueDimension(vertex1=v[14], vertex2=v[15], textPoint=(47.8226776123047,
-                                                                    22.8986129760742), value=edge)
-        s.ObliqueDimension(vertex1=v[16], vertex2=v[17], textPoint=(44.7161979675293,
-                                                                    24.3010540008545), value=edge)
-        s.ObliqueDimension(vertex1=v[20], vertex2=v[21], textPoint=(45.2375106811523,
-                                                                    25.2971286773682), value=edge)
-        s.Spot(point=(46.5862312316895, 24.7652835845947))
-        s.Spot(point=(46.1076545715332, 23.8426952362061))
-        s.Spot(point=(44.8241958618164, 23.7450103759766))
-        s.Spot(point=(44.2803535461426, 24.6350364685059))
-        s.Spot(point=(44.323860168457, 26.3282566070557))
-        s.Spot(point=(44.9003295898438, 27.1857204437256))
-        s.Spot(point=(46.1729164123535, 27.1965751647949))
-        s.Spot(point=(46.6623687744141, 26.3282566070557))
-        s.Line(point1=(45.0, 25.0), point2=(44.2803535461426, 24.6350364685059))
-        s.Line(point1=(44.2803535461426, 24.6350364685059), point2=(44.8241958618164,
-                                                                    23.7450103759766))
-        s.Line(point1=(44.8241958618164, 23.7450103759766), point2=(45.5,
-                                                                    24.1339745962156))
-        s.Line(point1=(45.5, 24.1339745962156), point2=(46.1076545715332,
-                                                        23.8426952362061))
-        s.Line(point1=(46.1076545715332, 23.8426952362061), point2=(46.5862312316895,
-                                                                    24.7652835845947))
-        s.Line(point1=(46.5862312316895, 24.7652835845947), point2=(46.0, 25.0))
-        s.Line(point1=(45.0, 26.0), point2=(44.323860168457, 26.3282566070557))
-        s.Line(point1=(44.323860168457, 26.3282566070557), point2=(44.9003295898438,
-                                                                   27.1857204437256))
-        s.Line(point1=(44.9003295898438, 27.1857204437256), point2=(45.5,
-                                                                    26.8660254037844))
-        s.Line(point1=(45.5, 26.8660254037844), point2=(46.1729164123535,
-                                                        27.1965751647949))
-        s.Line(point1=(46.1729164123535, 27.1965751647949), point2=(46.6623687744141,
-                                                                    26.3282566070557))
-        s.Line(point1=(46.6623687744141, 26.3282566070557), point2=(46.0, 26.0))
-        s.AngularDimension(line1=g[10], line2=g[11], textPoint=(44.3927917480469,
-                                                                24.5817852020264), value=90.0)
-        s.AngularDimension(line1=g[11], line2=g[12], textPoint=(44.8614616394043,
-                                                                23.8919429779053), value=90.0)
-        s.AngularDimension(line1=g[10], line2=g[7], textPoint=(45.0137825012207,
-                                                               24.8974761962891), value=90.0)
-        s.ObliqueDimension(vertex1=v[30], vertex2=v[31], textPoint=(44.4923820495605,
-                                                                    24.9676284790039), value=edge)
-        s.AngularDimension(line1=g[15], line2=g[14], textPoint=(46.4900970458984,
-                                                                24.7162456512451), value=90.0)
-        s.AngularDimension(line1=g[13], line2=g[14], textPoint=(46.0741539001465,
-                                                                24.0030193328857), value=90.0)
-        s.AngularDimension(line1=g[13], line2=g[6], textPoint=(45.6347732543945,
-                                                               24.2368640899658), value=90.0)
-        s.ObliqueDimension(vertex1=v[36], vertex2=v[37], textPoint=(45.6582069396973,
-                                                                    23.7691745758057), value=edge)
-        s.AngularDimension(line1=g[19], line2=g[20], textPoint=(46.1500434875488,
-                                                                27.127779006958), value=90.0)
-        s.AngularDimension(line1=g[20], line2=g[21], textPoint=(46.5798606872559,
-                                                                26.3327121734619), value=90.0)
-        s.AngularDimension(line1=g[4], line2=g[21], textPoint=(46.0504493713379,
-                                                               26.0685615539551), value=90.0)
-        s.ObliqueDimension(vertex1=v[52], vertex2=v[53], textPoint=(46.3964042663574,
-                                                                    26.0502548217773), value=edge)
-        s.AngularDimension(line1=g[16], line2=g[17], textPoint=(44.408447265625,
-                                                                26.3664321899414), value=90.0)
-        s.AngularDimension(line1=g[17], line2=g[18], textPoint=(44.9307289123535,
-                                                                27.1211700439453), value=90.0)
-        s.AngularDimension(line1=g[3], line2=g[18], textPoint=(45.4062042236328,
-                                                               26.8605766296387), value=90.0)
-        s.ObliqueDimension(vertex1=v[46], vertex2=v[47], textPoint=(45.14013671875,
-                                                                    26.8679523468018), value=edge)
-        s.Spot(point=(44.1605949401855, 27.2073268890381))
-        s.Spot(point=(44.6507415771484, 27.5763092041016))
-        s.Spot(point=(46.3490447998047, 27.60205078125))
-        s.Spot(point=(46.8176918029785, 27.3617839813232))
-        s.Line(point1=(44.1605949401855, 27.2073268890381), point2=(44.6339745962156,
-                                                                    27.3660254037844))
-        s.Line(point1=(44.6339745962156, 27.3660254037844), point2=(44.6507415771484,
-                                                                    27.5763092041016))
-        s.AngularDimension(line1=g[22], line2=g[17], textPoint=(44.4572639465332,
-                                                                27.2244873046875), value=60.0)
-        s.ObliqueDimension(vertex1=v[58], vertex2=v[59], textPoint=(44.2207908630371,
-                                                                    27.2116165161133), value=0.5*edge)
-        s.AngularDimension(line1=g[23], line2=g[22], textPoint=(44.5475540161133,
-                                                                27.4132690429688), value=90.0)
-        s.ObliqueDimension(vertex1=v[60], vertex2=v[61], textPoint=(44.7625274658203,
-                                                                    27.4690456390381), value=0.5*edge)
-        s.Line(point1=(46.3490447998047, 27.60205078125), point2=(46.3660254037844,
-                                                                  27.3660254037844))
-        s.Line(point1=(46.3660254037844, 27.3660254037844), point2=(46.8176918029785,
-                                                                    27.3617839813232))
-        s.AngularDimension(line1=g[25], line2=g[20], textPoint=(46.486629486084,
-                                                                27.2545223236084), value=60.0)
-        s.AngularDimension(line1=g[24], line2=g[25], textPoint=(46.4436340332031,
-                                                                27.4132690429688), value=90.0)
-        s.ObliqueDimension(vertex1=v[64], vertex2=v[65], textPoint=(46.6973075866699,
-                                                                    27.1086444854736), value=0.5*edge)
-        s.ObliqueDimension(vertex1=v[62], vertex2=v[63], textPoint=(46.2544593811035,
-                                                                    27.4947891235352), value=0.5*edge)
-        s.Spot(point=(44.1319313049316, 23.6154727935791))
-        s.Spot(point=(44.620231628418, 23.068775177002))
-        s.Spot(point=(46.8354415893555, 23.6273574829102))
-        s.Spot(point=(46.3650054931641, 23.1103706359863))
-        s.Line(point1=(44.1319313049316, 23.6154727935791), point2=(44.6339745962156,
-                                                                    23.6339745962156))
-        s.Line(point1=(44.6339745962156, 23.6339745962156), point2=(44.620231628418,
-                                                                    23.068775177002))
-        s.Line(point1=(46.8354415893555, 23.6273574829102), point2=(46.3660254037844,
-                                                                    23.6339745962156))
-        s.Line(point1=(46.3660254037844, 23.6339745962156), point2=(46.3650054931641,
-                                                                    23.1103706359863))
-        s.AngularDimension(line1=g[26], line2=g[11], textPoint=(44.4813232421875,
-                                                                23.7532444000244), value=60.0)
-        s.ObliqueDimension(vertex1=v[70], vertex2=v[71], textPoint=(44.306510925293,
-                                                                    23.4872150421143), value=0.5*edge)
-        s.AngularDimension(line1=g[27], line2=g[26], textPoint=(44.5337677001953,
-                                                                23.5482711791992), value=90.0)
-        s.ObliqueDimension(vertex1=v[72], vertex2=v[73], textPoint=(44.7653923034668,
-                                                                    23.3258533477783), value=0.5*edge)
-        s.AngularDimension(line1=g[28], line2=g[14], textPoint=(46.5135154724121,
-                                                                23.7532444000244), value=60.0)
-        s.ObliqueDimension(vertex1=v[74], vertex2=v[75], textPoint=(46.6271438598633,
-                                                                    23.4654102325439), value=0.5*edge)
-        s.AngularDimension(line1=g[29], line2=g[28], textPoint=(46.4654426574707,
-                                                                23.5657157897949), value=90.0)
-        s.ObliqueDimension(vertex1=v[76], vertex2=v[77], textPoint=(46.2294464111328,
-                                                                    23.3127708435059), value=0.5*edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=180.34,
+                                                        farPlane=196.784, width=53.9471, height=27.7836,
+                                                        cameraPosition=(
+                                                            49.5085, 26.4417, 188.562),
+                                                        cameraTarget=(49.5085, 26.4417, 0))
+        s.ObliqueDimension(vertex1=v[6], vertex2=v[7], textPoint=(edge * 43.3270835876465,
+                                                                  edge * 27.537712097168), value=edge)
+        s.ObliqueDimension(vertex1=v[8], vertex2=v[9], textPoint=(edge * 44.6553268432617,
+                                                                  edge * 30.3415641784668), value=edge)
+        s.ObliqueDimension(vertex1=v[10], vertex2=v[11], textPoint=(edge * 48.2824516296387,
+                                                                    edge * 28.7102317810059), value=edge)
+        s.ObliqueDimension(vertex1=v[14], vertex2=v[15], textPoint=(edge * 47.8226776123047,
+                                                                    edge * 22.8986129760742), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=185.507,
+                                                        farPlane=191.617, width=20.0454, height=10.3237,
+                                                        cameraPosition=(
+                                                            46.9371, 24.6515, 188.562),
+                                                        cameraTarget=(46.9371, 24.6515, 0))
+        s.ObliqueDimension(vertex1=v[16], vertex2=v[17], textPoint=(edge * 44.7161979675293,
+                                                                    edge * 24.3010540008545), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=186.811,
+                                                        farPlane=190.312, width=11.4859, height=5.91542,
+                                                        cameraPosition=(
+                                                            46.5318, 24.8901, 188.562),
+                                                        cameraTarget=(46.5318, 24.8901, 0))
+        s.ObliqueDimension(vertex1=v[20], vertex2=v[21], textPoint=(edge * 45.2375106811523,
+                                                                    edge * 25.2971286773682), value=edge)
+        s.Spot(point=(edge * 46.5862312316895, edge * 24.7652835845947))
+        s.Spot(point=(edge * 46.1076545715332, edge * 23.8426952362061))
+        s.Spot(point=(edge * 44.8241958618164, edge * 23.7450103759766))
+        s.Spot(point=(edge * 44.2803535461426, edge * 24.6350364685059))
+        s.Spot(point=(edge * 44.323860168457, edge * 26.3282566070557))
+        s.Spot(point=(edge * 44.9003295898438, edge * 27.1857204437256))
+        s.Spot(point=(edge * 46.1729164123535, edge * 27.1965751647949))
+        s.Spot(point=(edge * 46.6623687744141, edge * 26.3282566070557))
+        s.Line(point1=(edge * 45.0, edge * 25.0), point2=(edge * 44.2803535461426, edge * 24.6350364685059))
+        s.Line(point1=(edge * 44.2803535461426, edge * 24.6350364685059), point2=(edge * 44.8241958618164,
+                                                                                  edge * 23.7450103759766))
+        s.Line(point1=(edge * 44.8241958618164, edge * 23.7450103759766), point2=(edge * 45.5,
+                                                                                  edge * 24.1339745962156))
+        s.Line(point1=(edge * 45.5, edge * 24.1339745962156), point2=(edge * 46.1076545715332,
+                                                                      edge * 23.8426952362061))
+        s.Line(point1=(edge * 46.1076545715332, edge * 23.8426952362061), point2=(edge * 46.5862312316895,
+                                                                                  edge * 24.7652835845947))
+        s.Line(point1=(edge * 46.5862312316895, edge * 24.7652835845947), point2=(edge * 46.0, edge * 25.0))
+        s.Line(point1=(edge * 45.0, edge * 26.0), point2=(edge * 44.323860168457, edge * 26.3282566070557))
+        s.Line(point1=(edge * 44.323860168457, edge * 26.3282566070557), point2=(edge * 44.9003295898438,
+                                                                                 edge * 27.1857204437256))
+        s.Line(point1=(edge * 44.9003295898438, edge * 27.1857204437256), point2=(edge * 45.5,
+                                                                                  edge * 26.8660254037844))
+        s.Line(point1=(edge * 45.5, edge * 26.8660254037844), point2=(edge * 46.1729164123535,
+                                                                      edge * 27.1965751647949))
+        s.Line(point1=(edge * 46.1729164123535, edge * 27.1965751647949), point2=(edge * 46.6623687744141,
+                                                                                  edge * 26.3282566070557))
+        s.Line(point1=(edge * 46.6623687744141, edge * 26.3282566070557), point2=(edge * 46.0, edge * 26.0))
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.619,
+                                                        farPlane=189.505, width=6.18647, height=3.18613,
+                                                        cameraPosition=(
+                                                            45.6055, 24.6549, 188.562),
+                                                        cameraTarget=(45.6055, 24.6549, 0))
+        s.AngularDimension(line1=g[10], line2=g[11], textPoint=(edge * 44.3927917480469,
+                                                                edge * 24.5817852020264), value=90.0)
+        s.AngularDimension(line1=g[11], line2=g[12], textPoint=(edge * 44.8614616394043,
+                                                                edge * 23.8919429779053), value=90.0)
+        s.AngularDimension(line1=g[10], line2=g[7], textPoint=(edge * 45.0137825012207,
+                                                               edge * 24.8974761962891), value=90.0)
+        s.ObliqueDimension(vertex1=v[30], vertex2=v[31], textPoint=(edge * 44.4923820495605,
+                                                                    edge * 24.9676284790039), value=edge)
+        s.AngularDimension(line1=g[15], line2=g[14], textPoint=(edge * 46.4900970458984,
+                                                                edge * 24.7162456512451), value=90.0)
+        s.AngularDimension(line1=g[13], line2=g[14], textPoint=(edge * 46.0741539001465,
+                                                                edge * 24.0030193328857), value=90.0)
+        s.AngularDimension(line1=g[13], line2=g[6], textPoint=(edge * 45.6347732543945,
+                                                               edge * 24.2368640899658), value=90.0)
+        s.ObliqueDimension(vertex1=v[36], vertex2=v[37], textPoint=(edge * 45.6582069396973,
+                                                                    edge * 23.7691745758057), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=188.14,
+                                                        farPlane=188.984, width=2.76761, height=1.42537,
+                                                        cameraPosition=(
+                                                            45.8172, 26.4465, 188.562),
+                                                        cameraTarget=(45.8172, 26.4465, 0))
+        s.AngularDimension(line1=g[19], line2=g[20], textPoint=(edge * 46.1500434875488,
+                                                                edge * 27.127779006958), value=90.0)
+        s.AngularDimension(line1=g[20], line2=g[21], textPoint=(edge * 46.5798606872559,
+                                                                edge * 26.3327121734619), value=90.0)
+        s.AngularDimension(line1=g[4], line2=g[21], textPoint=(edge * 46.0504493713379,
+                                                               edge * 26.0685615539551), value=90.0)
+        s.ObliqueDimension(vertex1=v[52], vertex2=v[53], textPoint=(edge * 46.3964042663574,
+                                                                    edge * 26.0502548217773), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=188.211,
+                                                        farPlane=188.912, width=2.60156, height=1.33984,
+                                                        cameraPosition=(
+                                                            45.352, 26.6823, 188.562),
+                                                        cameraTarget=(45.352, 26.6823, 0))
+        s.AngularDimension(line1=g[16], line2=g[17], textPoint=(edge * 44.408447265625,
+                                                                edge * 26.3664321899414), value=90.0)
+        s.AngularDimension(line1=g[17], line2=g[18], textPoint=(edge * 44.9307289123535,
+                                                                edge * 27.1211700439453), value=90.0)
+        s.AngularDimension(line1=g[3], line2=g[18], textPoint=(edge * 45.4062042236328,
+                                                               edge * 26.8605766296387), value=90.0)
+        s.ObliqueDimension(vertex1=v[46], vertex2=v[47], textPoint=(edge * 45.14013671875,
+                                                                    edge * 26.8679523468018), value=edge)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.95,
+                                                        farPlane=189.173, width=4.54028, height=2.33832,
+                                                        cameraPosition=(
+                                                            45.1882, 26.952, 188.562),
+                                                        cameraTarget=(45.1882, 26.952, 0))
+        s.Spot(point=(edge * 44.1605949401855, edge * 27.2073268890381))
+        s.Spot(point=(edge * 44.6507415771484, edge * 27.5763092041016))
+        s.Spot(point=(edge * 46.3490447998047, edge * 27.60205078125))
+        s.Spot(point=(edge * 46.8176918029785, edge * 27.3617839813232))
+        s.Line(point1=(edge * 44.1605949401855, edge * 27.2073268890381), point2=(edge * 44.6339745962156,
+                                                                                  edge * 27.3660254037844))
+        s.Line(point1=(edge * 44.6339745962156, edge * 27.3660254037844), point2=(edge * 44.6507415771484,
+                                                                                  edge * 27.5763092041016))
+        s.AngularDimension(line1=g[22], line2=g[17], textPoint=(edge * 44.4572639465332,
+                                                                edge * 27.2244873046875), value=60.0)
+        s.ObliqueDimension(vertex1=v[58], vertex2=v[59], textPoint=(edge * 44.2207908630371,
+                                                                    edge * 27.2116165161133), value=edge * 0.5)
+        s.AngularDimension(line1=g[23], line2=g[22], textPoint=(edge * 44.5475540161133,
+                                                                edge * 27.4132690429688), value=90.0)
+        s.ObliqueDimension(vertex1=v[60], vertex2=v[61], textPoint=(edge * 44.7625274658203,
+                                                                    edge * 27.4690456390381), value=edge * 0.5)
+        s.Line(point1=(edge * 46.3490447998047, edge * 27.60205078125), point2=(edge * 46.3660254037844,
+                                                                                edge * 27.3660254037844))
+        s.Line(point1=(edge * 46.3660254037844, edge * 27.3660254037844), point2=(edge * 46.8176918029785,
+                                                                                  edge * 27.3617839813232))
+        s.AngularDimension(line1=g[25], line2=g[20], textPoint=(edge * 46.486629486084,
+                                                                edge * 27.2545223236084), value=60.0)
+        s.AngularDimension(line1=g[24], line2=g[25], textPoint=(edge * 46.4436340332031,
+                                                                edge * 27.4132690429688), value=90.0)
+        s.ObliqueDimension(vertex1=v[64], vertex2=v[65], textPoint=(edge * 46.6973075866699,
+                                                                    edge * 27.1086444854736), value=edge * 0.5)
+        s.ObliqueDimension(vertex1=v[62], vertex2=v[63], textPoint=(edge * 46.2544593811035,
+                                                                    edge * 27.4947891235352), value=edge * 0.5)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.603,
+                                                        farPlane=189.52, width=6.28834, height=3.2386,
+                                                        cameraPosition=(44.8465,
+                                                                        23.7551, 188.562),
+                                                        cameraTarget=(44.8465, 23.7551, 0))
+        s.Spot(point=(edge * 44.1319313049316, edge * 23.6154727935791))
+        s.Spot(point=(edge * 44.620231628418, edge * 23.068775177002))
+        s.Spot(point=(edge * 46.8354415893555, edge * 23.6273574829102))
+        s.Spot(point=(edge * 46.3650054931641, edge * 23.1103706359863))
+        s.Line(point1=(edge * 44.1319313049316, edge * 23.6154727935791), point2=(edge * 44.6339745962156,
+                                                                                  edge * 23.6339745962156))
+        s.Line(point1=(edge * 44.6339745962156, edge * 23.6339745962156), point2=(edge * 44.620231628418,
+                                                                                  edge * 23.068775177002))
+        s.Line(point1=(edge * 46.8354415893555, edge * 23.6273574829102), point2=(edge * 46.3660254037844,
+                                                                                  edge * 23.6339745962156))
+        s.Line(point1=(edge * 46.3660254037844, edge * 23.6339745962156), point2=(edge * 46.3650054931641,
+                                                                                  edge * 23.1103706359863))
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.858,
+                                                        farPlane=189.265, width=4.61504, height=2.37682,
+                                                        cameraPosition=(
+                                                            44.8703, 23.786, 188.562),
+                                                        cameraTarget=(44.8703, 23.786, 0))
+        s.AngularDimension(line1=g[26], line2=g[11], textPoint=(edge * 44.4813232421875,
+                                                                edge * 23.7532444000244), value=60.0)
+        s.ObliqueDimension(vertex1=v[70], vertex2=v[71], textPoint=(edge * 44.306510925293,
+                                                                    edge * 23.4872150421143), value=edge * 0.5)
+        s.AngularDimension(line1=g[27], line2=g[26], textPoint=(edge * 44.5337677001953,
+                                                                edge * 23.5482711791992), value=90.0)
+        s.ObliqueDimension(vertex1=v[72], vertex2=v[73], textPoint=(edge * 44.7653923034668,
+                                                                    edge * 23.3258533477783), value=edge * 0.5)
+        s.AngularDimension(line1=g[28], line2=g[14], textPoint=(edge * 46.5135154724121,
+                                                                edge * 23.7532444000244), value=60.0)
+        s.ObliqueDimension(vertex1=v[74], vertex2=v[75], textPoint=(edge * 46.6271438598633,
+                                                                    edge * 23.4654102325439), value=edge * 0.5)
+        s.AngularDimension(line1=g[29], line2=g[28], textPoint=(edge * 46.4654426574707,
+                                                                edge * 23.5657157897949), value=90.0)
+        s.ObliqueDimension(vertex1=v[76], vertex2=v[77], textPoint=(edge * 46.2294464111328,
+                                                                    edge * 23.3127708435059), value=edge * 0.5)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=186.76,
+                                                        farPlane=190.363, width=11.8189, height=6.08692,
+                                                        cameraPosition=(
+                                                            43.8813, 25.1122, 188.562),
+                                                        cameraTarget=(43.8813, 25.1122, 0))
         p = mdb.models['Model-1'].Part(name='Part-1',
                                                dimensionality=TWO_D_PLANAR, type=DEFORMABLE_BODY)
         p = mdb.models['Model-1'].parts['Part-1']
@@ -907,43 +997,324 @@ def create_structure(structure, edge):
                         , buttons=(YES,))
         main()
 
-    # TODO create k: SHD Structure
     if structure == 'k':
-        getWarningReply('The chosen strucutre is not yet available.\n'
-                        'Please choose one of the following structures: \n'
-                        "'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i'\n"
-                        , buttons=(YES,))
-        main()
+        s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
+                                                    sheetSize=200.0)
+        g, v, d, c = s.geometry, s.vertices, s.dimensions, s.constraints
+        s.setPrimaryObject(option=STANDALONE)
+        s.Spot(point=(edge * 45.0, edge * 30.0))
+        s.Spot(point=(edge * 47.5, edge * 30.0))
+        s.Line(point1=(edge * 45.0, edge * 30.0), point2=(edge * 47.5, edge * 30.0))
+        s.HorizontalConstraint(entity=g[2], addUndoState=False)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=182.913,
+                                                        farPlane=194.211, width=37.0648, height=19.089, cameraPosition=(
+                45.4831, 28.1021, 188.562), cameraTarget=(45.4831, 28.1021, 0))
+        s.ObliqueDimension(vertex1=v[2], vertex2=v[3], textPoint=(edge * 45.9745216369629,
+                                                                  edge * 31.0617179870605), value=edge)
+        s.Spot(point=(edge * 47.5, edge * 28.75))
+        s.Line(point1=(edge * 47.5, edge * 30.0), point2=(edge * 47.5, edge * 28.75))
+        s.VerticalConstraint(entity=g[3], addUndoState=False)
+        s.ObliqueDimension(vertex1=v[5], vertex2=v[6], textPoint=(edge * 48.5016708374023,
+                                                                  edge * 29.4155120849609), value=edge)
+        s.Spot(point=(edge * 46.25, edge * 28.75))
+        s.Line(point1=(edge * 46.5, edge * 30.0), point2=(edge * 46.25, edge * 28.75))
+        s.Line(point1=(edge * 46.25, edge * 28.75), point2=(edge * 47.5, edge * 29.0))
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=186.035,
+                                                        farPlane=191.089, width=16.5815, height=8.53975,
+                                                        cameraPosition=(
+                                                            46.2356, 28.76, 188.562), cameraTarget=(46.2356, 28.76, 0))
+        s.AngularDimension(line1=g[4], line2=g[5], textPoint=(edge * 46.5967636108398,
+                                                              edge * 29.0028839111328), value=90.0)
+        s.AngularDimension(line1=g[2], line2=g[4], textPoint=(edge * 46.6752777099609,
+                                                              edge * 29.8020153045654), value=90.0)
+        s.Spot(point=(edge * 45.9372711181641, edge * 28.3604431152344))
+        s.Line(point1=(edge * 46.5, edge * 29.0), point2=(edge * 45.9372711181641, edge * 28.3604431152344))
+        s.AngularDimension(line1=g[6], line2=g[5], textPoint=(edge * 46.643871307373,
+                                                              edge * 28.7991828918457), value=130.0)
+        s.ObliqueDimension(vertex1=v[13], vertex2=v[14], textPoint=(edge * 45.8430595397949,
+                                                                    edge * 29.0498905181885), value=edge)
+        s.Spot(point=(edge * 48.1983871459961, edge * 28.2194194793701))
+        s.Line(point1=(edge * 47.5, edge * 29.0), point2=(edge * 48.1983871459961, edge * 28.2194194793701))
+        s.AngularDimension(line1=g[5], line2=g[7], textPoint=(edge * 47.397575378418,
+                                                              edge * 28.8148517608643), value=130.0)
+        s.ObliqueDimension(vertex1=v[16], vertex2=v[17], textPoint=(edge * 48.2769012451172,
+                                                                    edge * 28.8618602752686), value=edge)
+        s.Spot(point=(edge * 46.4868507385254, edge * 27.3576107025146))
+        s.Line(point1=(edge * 45.8572123903135, edge * 28.233955556881), point2=(edge * 46.4868507385254,
+                                                                                 edge * 27.3576107025146))
+        s.AngularDimension(line1=g[6], line2=g[8], textPoint=(edge * 46.1256980895996,
+                                                              edge * 28.188081741333), value=120.0)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.359,
+                                                        farPlane=189.765, width=7.89148, height=4.06424,
+                                                        cameraPosition=(
+                                                            46.7667, 28.4079, 188.562),
+                                                        cameraTarget=(46.7667, 28.4079, 0))
+        s.delete(objectList=(d[4],))
+        s.delete(objectList=(d[6],))
+        s.AngularDimension(line1=g[5], line2=g[6], textPoint=(edge * 46.4901695251465,
+                                                              edge * 28.8665142059326), value=120.0)
+        s.AngularDimension(line1=g[5], line2=g[7], textPoint=(edge * 47.4616584777832,
+                                                              edge * 28.8366851806641), value=120.0)
+        s.ObliqueDimension(vertex1=v[19], vertex2=v[20], textPoint=(edge * 46.4004936218262,
+                                                                    edge * 27.9045181274414), value=edge)
+        s.Spot(point=(edge * 47.603645324707, edge * 27.2855606079102))
+        s.Line(point1=(edge * 48.0, edge * 28.1339745962156), point2=(edge * 47.603645324707,
+                                                                      edge * 27.2855606079102))
+        s.AngularDimension(line1=g[7], line2=g[9], textPoint=(edge * 47.8427810668945,
+                                                              edge * 28.09840965271), value=120.0)
+        s.ObliqueDimension(vertex1=v[22], vertex2=v[23], textPoint=(edge * 47.5737533569336,
+                                                                    edge * 27.8970623016357), value=edge)
+        s.Line(point1=(edge * 46.5, edge * 27.2679491924311), point2=(edge * 47.5, edge * 27.2679491924312))
+        s.HorizontalConstraint(entity=g[10], addUndoState=False)
+        s.delete(objectList=(d[13],))
+        s.Spot(point=(edge * 45.294490814209, edge * 27.8523178100586))
+        s.Line(point1=(edge * 46.0, edge * 28.1339745962156), point2=(edge * 45.294490814209,
+                                                                      edge * 27.8523178100586))
+        s.AngularDimension(line1=g[11], line2=g[8], textPoint=(edge * 45.9969520568848,
+                                                               edge * 27.9418048858643), value=90.0)
+        s.ObliqueDimension(vertex1=v[27], vertex2=v[28], textPoint=(edge * 45.8624382019043,
+                                                                    edge * 27.7329998016357), value=edge)
+        s.Spot(point=(edge * 45.7503433227539, edge * 27.2557315826416))
+        s.Line(point1=(edge * 45.1339745962156, edge * 27.6339745962156), point2=(edge * 45.7503433227539,
+                                                                                  edge * 27.2557315826416))
+        s.Line(point1=(edge * 45.7503433227539, edge * 27.2557315826416), point2=(edge * 46.5,
+                                                                                  edge * 27.2679491924311))
+        s.AngularDimension(line1=g[12], line2=g[13], textPoint=(edge * 45.8474922180176,
+                                                                edge * 27.3601341247559), value=90.0)
+        s.AngularDimension(line1=g[8], line2=g[13], textPoint=(edge * 46.2883987426758,
+                                                               edge * 27.4123363494873), value=90.0)
+        s.Spot(point=(edge * 48.851634979248, edge * 28.01637840271))
+        s.Line(point1=(edge * 48.0, edge * 28.1339745962156), point2=(edge * 48.851634979248,
+                                                                      edge * 28.01637840271))
+        s.AngularDimension(line1=g[14], line2=g[9], textPoint=(edge * 47.9922409057617,
+                                                               edge * 28.01637840271), value=9.0)
+        s.undo()
+        s.AngularDimension(line1=g[9], line2=g[14], textPoint=(edge * 48.0893898010254,
+                                                               edge * 28.0611228942871), value=90.0)
+        s.ObliqueDimension(vertex1=v[35], vertex2=v[36], textPoint=(edge * 48.2164306640625,
+                                                                    edge * 27.7479152679443), value=edge)
+        s.Spot(point=(edge * 48.1192817687988, edge * 27.4123363494873))
+        s.Line(point1=(edge * 48.8660254037844, edge * 27.6339745962156), point2=(edge * 48.1192817687988,
+                                                                                  edge * 27.4123363494873))
+        s.Line(point1=(edge * 48.1192817687988, edge * 27.4123363494873), point2=(edge * 47.5,
+                                                                                  edge * 27.2679491924312))
+        s.AngularDimension(line1=g[15], line2=g[14], textPoint=(edge * 48.5004043579102,
+                                                                edge * 27.6957130432129), value=90.0)
+        s.AngularDimension(line1=g[9], line2=g[16], textPoint=(edge * 47.6559562683105,
+                                                               edge * 27.3974208831787), value=90.0)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=187.277,
+                                                        farPlane=189.847, width=8.42954, height=4.34135,
+                                                        cameraPosition=(
+                                                            46.966, 31.6681, 188.562),
+                                                        cameraTarget=(46.966, 31.6681, 0))
+        s.Spot(point=(edge * 45.8564338684082, edge * 30.7320728302002))
+        s.Line(point1=(edge * 46.5, edge * 30.0), point2=(edge * 45.8564338684082, edge * 30.7320728302002))
+        s.AngularDimension(line1=g[17], line2=g[2], textPoint=(edge * 46.5988082885742,
+                                                               edge * 30.1585369110107), value=120.0)
+        s.ObliqueDimension(vertex1=v[43], vertex2=v[44], textPoint=(edge * 46.4631042480469,
+                                                                    edge * 30.5329284667969), value=edge)
+        s.Spot(point=(edge * 47.9239044189453, edge * 30.9630813598633))
+        s.Line(point1=(edge * 47.5, edge * 30.0), point2=(edge * 47.9239044189453, edge * 30.9630813598633))
+        s.AngularDimension(line1=g[2], line2=g[18], textPoint=(edge * 47.4609184265137,
+                                                               edge * 30.1665019989014), value=120.0)
+        s.ObliqueDimension(vertex1=v[46], vertex2=v[47], textPoint=(edge * 47.5088157653809,
+                                                                    edge * 30.5568256378174), value=edge)
+        s.Spot(point=(edge * 46.4471397399902, edge * 31.6003437042236))
+        s.Line(point1=(edge * 46.0, edge * 30.8660254037844), point2=(edge * 46.4471397399902,
+                                                                      edge * 31.6003437042236))
+        s.AngularDimension(line1=g[17], line2=g[19], textPoint=(edge * 46.1597671508789,
+                                                                edge * 30.8754577636719), value=120.0)
+        s.ObliqueDimension(vertex1=v[49], vertex2=v[50], textPoint=(edge * 46.415210723877,
+                                                                    edge * 31.0507049560547), value=edge)
+        s.Spot(point=(edge * 47.5407447814941, edge * 31.5206851959229))
+        s.Line(point1=(edge * 48.0, edge * 30.8660254037844), point2=(edge * 47.5407447814941,
+                                                                      edge * 31.5206851959229))
+        s.Line(point1=(edge * 47.5407447814941, edge * 31.5206851959229), point2=(edge * 46.5,
+                                                                                  edge * 31.7320508075688))
+        s.AngularDimension(line1=g[20], line2=g[18], textPoint=(edge * 47.8520660400391,
+                                                                edge * 30.8356285095215), value=120.0)
+        s.AngularDimension(line1=g[21], line2=g[20], textPoint=(edge * 47.5646934509277,
+                                                                edge * 31.3613700866699), value=120.0)
+        s.Spot(point=(edge * 45.3535346984863, edge * 31.0347728729248))
+        s.Line(point1=(edge * 46.0, edge * 30.8660254037844), point2=(edge * 45.3535346984863,
+                                                                      edge * 31.0347728729248))
+        s.AngularDimension(line1=g[22], line2=g[19], textPoint=(edge * 45.9202919006348,
+                                                                edge * 31.0188407897949), value=90.0)
+        s.ObliqueDimension(vertex1=v[57], vertex2=v[58], textPoint=(edge * 45.8644142150879,
+                                                                    edge * 31.2737464904785), value=edge)
+        s.Spot(point=(edge * 45.4493255615234, edge * 32.4606475830078))
+        s.Line(point1=(edge * 45.1339745962156, edge * 31.3660254037844), point2=(edge * 45.4493255615234,
+                                                                                  edge * 32.4606475830078))
+        s.Line(point1=(edge * 45.4493255615234, edge * 32.4606475830078), point2=(edge * 46.5,
+                                                                                  edge * 31.7320508075688))
+        s.AngularDimension(line1=g[23], line2=g[24], textPoint=(edge * 45.5530967712402,
+                                                                edge * 32.2296409606934), value=90.0)
+        s.AngularDimension(line1=g[24], line2=g[19], textPoint=(edge * 46.3752975463867,
+                                                                edge * 31.6720352172852), value=90.0)
+        s.Spot(point=(edge * 48.1234703063965, edge * 31.9986324310303))
+        s.Line(point1=(edge * 47.5, edge * 31.7320508075689), point2=(edge * 48.1234703063965,
+                                                                      edge * 31.9986324310303))
+        s.AngularDimension(line1=g[25], line2=g[20], textPoint=(edge * 47.6285514831543,
+                                                                edge * 31.6800003051758), value=90.0)
+        s.ObliqueDimension(vertex1=v[65], vertex2=v[66], textPoint=(edge * 47.9079399108887,
+                                                                    edge * 31.6322059631348), value=edge)
+        s.Spot(point=(edge * 49.1053199768066, edge * 31.456958770752))
+        s.Line(point1=(edge * 48.3660254037844, edge * 32.2320508075689), point2=(edge * 49.1053199768066,
+                                                                                  edge * 31.456958770752))
+        s.Line(point1=(edge * 49.1053199768066, edge * 31.456958770752), point2=(edge * 48.0,
+                                                                                 edge * 30.8660254037844))
+        s.AngularDimension(line1=g[25], line2=g[26], textPoint=(edge * 48.4028587341309,
+                                                                edge * 32.0782890319824), value=90.0)
+        s.AngularDimension(line1=g[26], line2=g[27], textPoint=(edge * 48.7540893554688,
+                                                                edge * 31.3773021697998), value=90.0)
+        s.Spot(point=(edge * 45.2497596740723, edge * 32.9943542480469))
+        s.Line(point1=(edge * 45.6339745962156, edge * 32.2320508075688), point2=(edge * 45.2497596740723,
+                                                                                  edge * 32.9943542480469))
+        s.AngularDimension(line1=g[28], line2=g[23], textPoint=(edge * 45.3934478759766,
+                                                                edge * 32.237606048584), value=120.0)
+        s.ObliqueDimension(vertex1=v[73], vertex2=v[74], textPoint=(edge * 45.2417793273926,
+                                                                    edge * 32.4367523193359), value=edge)
+        s.Spot(point=(edge * 45.1459884643555, edge * 33.5917892456055))
+        s.Line(point1=(edge * 45.1339745962156, edge * 33.0980762113532), point2=(edge * 45.1459884643555,
+                                                                                  edge * 33.5917892456055))
+        s.AngularDimension(line1=g[29], line2=g[28], textPoint=(edge * 45.2816925048828,
+                                                                edge * 33.0899467468262), value=150.0)
+        s.ObliqueDimension(vertex1=v[76], vertex2=v[77], textPoint=(edge * 45.3934478759766,
+                                                                    edge * 33.2731590270996), value=edge * 0.5)
+        s.Spot(point=(edge * 44.6830024719238, edge * 32.9784240722656))
+        s.Line(point1=(edge * 45.1339745962156, edge * 33.0980762113532), point2=(edge * 44.6830024719238,
+                                                                                  edge * 32.9784240722656))
+        s.AngularDimension(line1=g[29], line2=g[30], textPoint=(edge * 45.0501976013184,
+                                                                edge * 33.2014656066895), value=90.0)
+        s.ObliqueDimension(vertex1=v[79], vertex2=v[80], textPoint=(edge * 44.8985290527344,
+                                                                    edge * 32.874870300293), value=edge * 0.5)
+        s.Spot(point=(edge * 44.7069511413574, edge * 31.2179851531982))
+        s.Line(point1=(edge * 45.1339745962156, edge * 31.3660254037844), point2=(edge * 44.7069511413574,
+                                                                                  edge * 31.2179851531982))
+        s.AngularDimension(line1=g[23], line2=g[31], textPoint=(edge * 45.0182685852051,
+                                                                edge * 31.4410285949707), value=120.0)
+        s.ObliqueDimension(vertex1=v[82], vertex2=v[83], textPoint=(edge * 44.8825645446777,
+                                                                    edge * 31.1781578063965), value=edge * 0.5)
+        s.Spot(point=(edge * 48.8179473876953, edge * 32.9943542480469))
+        s.Line(point1=(edge * 48.3660254037844, edge * 32.2320508075689), point2=(edge * 48.8179473876953,
+                                                                                  edge * 32.9943542480469))
+        s.AngularDimension(line1=g[32], line2=g[26], textPoint=(edge * 48.5625076293945,
+                                                                edge * 32.1659126281738), value=120.0)
+        s.ObliqueDimension(vertex1=v[85], vertex2=v[86], textPoint=(edge * 48.7620697021484,
+                                                                    edge * 32.4765815734863), value=edge)
+        s.Spot(point=(edge * 48.75, edge * 33.75))
+        s.Line(point1=(edge * 48.8660254037844, edge * 33.0980762113533), point2=(edge * 48.75, edge * 33.75))
+        s.AngularDimension(line1=g[33], line2=g[32], textPoint=(edge * 48.7461051940918,
+                                                                edge * 33.0819778442383), value=150.0)
+        s.ObliqueDimension(vertex1=v[88], vertex2=v[89], textPoint=(edge * 48.6263694763184,
+                                                                    edge * 33.4484062194824), value=edge * 0.5)
+        s.Spot(point=(edge * 49.3447952270508, edge * 33.0341835021973))
+        s.Line(point1=(edge * 48.8660254037844, edge * 33.0980762113533), point2=(edge * 49.3447952270508,
+                                                                                  edge * 33.0341835021973))
+        s.AngularDimension(line1=g[33], line2=g[34], textPoint=(edge * 49.0494422912598,
+                                                                edge * 33.1775703430176), value=90.0)
+        s.ObliqueDimension(vertex1=v[91], vertex2=v[92], textPoint=(edge * 49.08935546875,
+                                                                    edge * 32.8509712219238), value=edge * 0.5)
+        s.Spot(point=(edge * 49.4086570739746, edge * 31.2259521484375))
+        s.Line(point1=(edge * 48.8660254037844, edge * 31.3660254037844), point2=(edge * 49.4086570739746,
+                                                                                  edge * 31.2259521484375))
+        s.AngularDimension(line1=g[26], line2=g[35], textPoint=(edge * 48.9696159362793,
+                                                                edge * 31.4410285949707), value=120.0)
+        s.ObliqueDimension(vertex1=v[94], vertex2=v[95], textPoint=(edge * 49.1053199768066,
+                                                                    edge * 31.1861228942871), value=edge * 0.5)
+        session.viewports['Viewport: 1'].view.setValues(nearPlane=186.91,
+                                                        farPlane=190.214, width=12.269, height=6.31875, cameraPosition=(
+                46.9014, 26.7204, 188.562), cameraTarget=(46.9014, 26.7204, 0))
+        s.Spot(point=(edge * 45.205135345459, edge * 25.9146366119385))
+        s.Line(point1=(edge * 45.6339745962156, edge * 26.7679491924311), point2=(edge * 45.205135345459,
+                                                                                  edge * 25.9146366119385))
+        s.AngularDimension(line1=g[12], line2=g[36], textPoint=(edge * 45.4026489257813,
+                                                                edge * 26.6798439025879), value=120.0)
+        s.ObliqueDimension(vertex1=v[97], vertex2=v[98], textPoint=(edge * 45.7279624938965,
+                                                                    edge * 26.2856464385986), value=edge)
+        s.Spot(point=(edge * 45.0773315429688, edge * 25.3697185516357))
+        s.Line(point1=(edge * 45.1339745962156, edge * 25.9019237886467), point2=(edge * 45.0773315429688,
+                                                                                  edge * 25.3697185516357))
+        s.AngularDimension(line1=g[36], line2=g[37], textPoint=(edge * 45.2516098022461,
+                                                                edge * 25.8102912902832), value=150.0)
+        s.ObliqueDimension(vertex1=v[100], vertex2=v[101], textPoint=(edge * 45.4491195678711,
+                                                                      edge * 25.636381149292), value=edge * 0.5)
+        s.Spot(point=(edge * 44.5545043945313, edge * 25.7175388336182))
+        s.Line(point1=(edge * 45.1339745962156, edge * 25.9019237886467), point2=(edge * 44.5545043945313,
+                                                                                  edge * 25.7175388336182))
+        s.AngularDimension(line1=g[38], line2=g[37], textPoint=(edge * 45.0192413330078,
+                                                                edge * 25.7407264709473), value=90.0)
+        s.ObliqueDimension(vertex1=v[103], vertex2=v[104], textPoint=(edge * 44.7984924316406,
+                                                                      edge * 25.5668163299561), value=edge * 0.5)
+        s.Spot(point=(edge * 44.7055435180664, edge * 27.4682388305664))
+        s.Line(point1=(edge * 45.1339745962156, edge * 27.6339745962156), point2=(edge * 44.7055435180664,
+                                                                                  edge * 27.4682388305664))
+        s.AngularDimension(line1=g[39], line2=g[12], textPoint=(edge * 45.0540962219238,
+                                                                edge * 27.4334564208984), value=120.0)
+        s.ObliqueDimension(vertex1=v[106], vertex2=v[107], textPoint=(edge * 44.8565826416016,
+                                                                      edge * 27.931999206543), value=edge * 0.5)
+        s.Spot(point=(edge * 48.8649291992188, edge * 25.8450736999512))
+        s.Line(point1=(edge * 48.3660254037844, edge * 26.7679491924312), point2=(edge * 48.8649291992188,
+                                                                                  edge * 25.8450736999512))
+        s.AngularDimension(line1=g[15], line2=g[40], textPoint=(edge * 48.5744705200195,
+                                                                edge * 26.7494087219238), value=120.0)
+        s.ObliqueDimension(vertex1=v[109], vertex2=v[110], textPoint=(edge * 48.2956275939941,
+                                                                      edge * 26.2044887542725), value=edge)
+        s.Spot(point=(edge * 48.8997840881348, edge * 25.3233413696289))
+        s.Line(point1=(edge * 48.8660254037844, edge * 25.9019237886468), point2=(edge * 48.8997840881348,
+                                                                                  edge * 25.3233413696289))
+        s.AngularDimension(line1=g[40], line2=g[41], textPoint=(edge * 48.7022705078125,
+                                                                edge * 25.8218860626221), value=150.0)
+        s.ObliqueDimension(vertex1=v[112], vertex2=v[113], textPoint=(edge * 48.5396156311035,
+                                                                      edge * 25.5552215576172), value=edge * 0.5)
+        s.Spot(point=(edge * 49.4109954833984, edge * 25.7755088806152))
+        s.Line(point1=(edge * 48.8660254037844, edge * 25.9019237886468), point2=(edge * 49.4109954833984,
+                                                                                  edge * 25.7755088806152))
+        s.AngularDimension(line1=g[42], line2=g[41], textPoint=(edge * 49.0043487548828,
+                                                                edge * 25.7871036529541), value=90.0)
+        s.ObliqueDimension(vertex1=v[115], vertex2=v[116], textPoint=(edge * 49.2018623352051,
+                                                                      edge * 25.5900039672852), value=edge * 0.5)
+        s.Spot(point=(edge * 49.3296661376953, edge * 27.7812767028809))
+        s.Line(point1=(edge * 48.8660254037844, edge * 27.6339745962156), point2=(edge * 49.3296661376953,
+                                                                                  edge * 27.7812767028809))
+        s.AngularDimension(line1=g[43], line2=g[15], textPoint=(edge * 48.8765487670898,
+                                                                edge * 27.4914264678955), value=120.0)
+        s.ObliqueDimension(vertex1=v[118], vertex2=v[119], textPoint=(edge * 49.132152557373,
+                                                                      edge * 28.0015640258789), value=edge * 0.5)
+        p = mdb.models['Model-1'].Part(name='Part-1', dimensionality=TWO_D_PLANAR,
+                                       type=DEFORMABLE_BODY)
+        p = mdb.models['Model-1'].parts['Part-1']
+        p.BaseWire(sketch=s)
+        s.unsetPrimaryObject()
+        p = mdb.models['Model-1'].parts['Part-1']
+        session.viewports['Viewport: 1'].setValues(displayedObject=p)
+        del mdb.models['Model-1'].sketches['__profile__']
 
 def select_material():
-    # TODO this is fucking ugly, change!
+
+    # Define all possible return statements as None
     young_modulus = None
     poisson_rate = None
     c10 = None
     c01 = None
     d1 = None
-    try:
-        model = str(getInput("You can choose from the following material models\n"
+
+    # Query the user
+    model = str(getInput("You can choose from the following material models\n"
                                "'linear', 'nonlinear'\n"
-                               "Please enter the desired material model: ")).lower()
-        if model == 'linear':
-            fields = (('Young Modulus [MPa]:', '210000'), ('Poisson Rate:', '0.3'))
-            young_modulus, poisson_rate = getInputs(fields=fields, label='Specify Material dimensions:',
-                                                    dialogTitle='Create Material', )
+                               "Please enter the desired material model: ", "linear")).lower()
 
-        elif model == 'nonlinear':
-            fields = (('c10 [MPa]:', '0.3339'), ('c01 [MPa]:', '-0.000337'), ('d1:', '0.0015828'))
-            c10, c01, d1 = getInputs(fields=fields, label='Specify Material dimensions:',
-                                                    dialogTitle='Create Material', )
-
-        else:
-            getWarningReply('The chosen value is not available.\n'
-                            'Please choose one of the following material models: \n'
-                            "'linear', 'nonlinear'\n"
-                            , buttons=(YES,))
-            section = select_material()
-
-    except:
+    # Query the user for additional information regarding the material
+    # Offers values for quick tries
+    if model == 'linear':
+        fields = (('Young Modulus [MPa]:', '210000'), ('Poisson Rate:', '0.3'))
+        young_modulus, poisson_rate = getInputs(fields=fields, label='Specify Material dimensions:',
+                                                dialogTitle='Create Material', )
+    elif model == 'nonlinear':
+        fields = (('c10 [MPa]:', '0.3339'), ('c01 [MPa]:', '-0.000337'), ('d1:', '0.0015828'))
+        c10, c01, d1 = getInputs(fields=fields, label='Specify Material dimensions:',
+                                                dialogTitle='Create Material', )
+    else:
         getWarningReply('The chosen value is not available.\n'
                         'Please choose one of the following material models: \n'
                         "'linear', 'nonlinear'\n"
@@ -982,7 +1353,7 @@ def select_cross_section(edge, structure):
 
     section = str(getInput("You can choose from the following cross sections\n"
                            "'box', 'pipe', 'circular', 'rectangular', 'hexagonal', 'trapezoidal', 'I', 'L', 'T'\n"
-                           "Please enter the desired cross section profile: ")).lower()
+                           "Please enter the desired cross section profile: ", "circular")).lower()
     if section == 'box':
         fields = (('Width [mm]:', '5'), ('Height [mm]:', '5'), ('Thickness [mm]:', '1'))
         width, height, thickness = getInputs(fields=fields, label='Specify cross section dimensions:',
@@ -1006,7 +1377,7 @@ def select_cross_section(edge, structure):
                 section = select_cross_section(edge, structure)
 
     if section == 'circular':
-        radius = str(getInput("Specify cross section dimensions:"))
+        radius = str(getInput("Specify cross section dimensions:", "2"))
 
         if structure in quad_structures:
             if float(radius) >= float(edge)/2.0:
@@ -1268,7 +1639,298 @@ def select_boundary_conditions():
 def create_boundary_conditions(structure, force, loadcase, axis):
     if structure == 'a':
         pass
+    if structure == 'b':
+        pass
+    if structure == 'c':
+        pass
+    if structure == 'd':
+        pass
+    if structure == 'e':
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#100 ]',), )
+        p.Set(vertices=verts, name='L1')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#200 ]',), )
+        p.Set(vertices=verts, name='L2')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#400 ]',), )
+        p.Set(vertices=verts, name='L3')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#1000 ]',), )
+        p.Set(vertices=verts, name='L4')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#10 ]',), )
+        p.Set(vertices=verts, name='R1')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#40 ]',), )
+        p.Set(vertices=verts, name='R2')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#80000 ]',), )
+        p.Set(vertices=verts, name='R3')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#40000 ]',), )
+        p.Set(vertices=verts, name='R4')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#1 ]',), )
+        p.Set(vertices=verts, name='T1')
+        p = mdb.models['Model-1'].parts['Part-1']
+        v = p.vertices
+        verts = v.getSequenceFromMask(mask=('[#20000 ]',), )
+        p.Set(vertices=verts, name='B1')
+        a1 = mdb.models['Model-1'].rootAssembly
+        a1.regenerate()
+        a = mdb.models['Model-1'].rootAssembly
+        session.viewports['Viewport: 1'].setValues(displayedObject=a)
+        session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
+                                                                   predefinedFields=ON, connectors=ON,
+                                                                   adaptiveMeshConstraints=OFF)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#1 ]',), )
+        region = a.Set(vertices=verts1, name='Set-1')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#1 ]',), )
+        region = a.Set(vertices=verts1, name='Set-2')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#100 ]',), )
+        region = a.Set(vertices=verts1, name='Set-3')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
+                                                region=region, cf1=-float(force), distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#200 ]',), )
+        region = a.Set(vertices=verts1, name='Set-4')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
+                                                region=region, cf1=-float(force), distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#400 ]',), )
+        region = a.Set(vertices=verts1, name='Set-5')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-5', createStepName='Step-1',
+                                                region=region, cf1=-float(force), distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#1000 ]',), )
+        region = a.Set(vertices=verts1, name='Set-6')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-6', createStepName='Step-1',
+                                                region=region, cf1=-float(force), distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#20000 ]',), )
+        region = a.Set(vertices=verts1, name='Set-7')
+        mdb.models['Model-1'].DisplacementBC(name='BC-1', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
+                                             distributionType=UNIFORM, fieldName='', localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#10 ]',), )
+        region = a.Set(vertices=verts1, name='Set-8')
+        mdb.models['Model-1'].DisplacementBC(name='BC-2', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
+                                             distributionType=UNIFORM, fieldName='', localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#40 ]',), )
+        region = a.Set(vertices=verts1, name='Set-9')
+        mdb.models['Model-1'].DisplacementBC(name='BC-3', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
+                                             distributionType=UNIFORM, fieldName='', localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#80000 ]',), )
+        region = a.Set(vertices=verts1, name='Set-10')
+        mdb.models['Model-1'].DisplacementBC(name='BC-4', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
+                                             distributionType=UNIFORM, fieldName='', localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#40000 ]',), )
+        region = a.Set(vertices=verts1, name='Set-11')
+        mdb.models['Model-1'].DisplacementBC(name='BC-5', createStepName='Step-1',
+                                             region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
+                                             distributionType=UNIFORM, fieldName='', localCsys=None)
+        session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=OFF, bcs=OFF,
+                                                                   predefinedFields=OFF, interactions=ON,
+                                                                   constraints=ON,
+                                                                   engineeringFeatures=ON)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#100 ]',), )
+        region = a.Set(vertices=verts1, name='Set-12')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-7', createStepName='Step-1',
+                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#200 ]',), )
+        region = a.Set(vertices=verts1, name='Set-13')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-8', createStepName='Step-1',
+                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#400 ]',), )
+        region = a.Set(vertices=verts1, name='Set-14')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-9', createStepName='Step-1',
+                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                localCsys=None)
+        a = mdb.models['Model-1'].rootAssembly
+        v1 = a.instances['Part-1-1'].vertices
+        verts1 = v1.getSequenceFromMask(mask=('[#1000 ]',), )
+        region = a.Set(vertices=verts1, name='Set-15')
+        mdb.models['Model-1'].ConcentratedForce(name='Load-10',
+                                                createStepName='Step-1', region=region, cf2=1000.0,
+                                                distributionType=UNIFORM, field='', localCsys=None)
+        mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1-1.L1',
+                                                                    1), (-1.0, 'Part-1-1.R1', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-2', terms=((1.0, 'Part-1-1.L1',
+                                                                    2), (-1.0, 'Part-1-1.R1', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-3', terms=((1.0, 'Part-1-1.L2',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-4', terms=((1.0, 'Part-1-1.L2',
+                                                                    2), (-1.0, 'Part-1-1.R2', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-5', terms=((1.0, 'Part-1-1.L3',
+                                                                    1), (-1.0, 'Part-1-1.R3', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-6', terms=((1.0, 'Part-1-1.L3',
+                                                                    2), (-1.0, 'Part-1-1.R3', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-7', terms=((1.0, 'Part-1-1.L4',
+                                                                    1), (-1.0, 'Part-1-1.R4', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-8', terms=((1.0, 'Part-1-1.L4',
+                                                                    2), (-1.0, 'Part-1-1.R4', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-9', terms=((1.0, 'Part-1-1.T1',
+                                                                    1), (-1.0, 'Part-1-1.B1', 1),
+                                                                   (-1.0, 'Part-1-1.R2', 1)))
 
+        if loadcase == 'uniaxial':
+            if axis == 'y':
+                mdb.models['Model-1'].constraints['Constraint-9'].suppress()
+                session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
+                                                                           predefinedFields=ON, interactions=OFF,
+                                                                           constraints=OFF,
+                                                                           engineeringFeatures=OFF)
+                mdb.models['Model-1'].boundaryConditions['BC-2'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-4'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-5'].suppress()
+                mdb.models['Model-1'].loads['Load-2'].suppress()
+                mdb.models['Model-1'].loads['Load-3'].suppress()
+                mdb.models['Model-1'].loads['Load-4'].suppress()
+                mdb.models['Model-1'].loads['Load-5'].suppress()
+                mdb.models['Model-1'].loads['Load-6'].suppress()
+                mdb.models['Model-1'].loads['Load-7'].suppress()
+                mdb.models['Model-1'].loads['Load-8'].suppress()
+                mdb.models['Model-1'].loads['Load-9'].suppress()
+                mdb.models['Model-1'].loads['Load-10'].suppress()
+
+            if axis == 'x':
+                session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=OFF, bcs=OFF,
+                                                                           predefinedFields=OFF, interactions=ON,
+                                                                           constraints=ON,
+                                                                           engineeringFeatures=ON)
+                mdb.models['Model-1'].constraints['Constraint-1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-4'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-5'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-6'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-7'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-8'].suppress()
+                session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
+                                                                           predefinedFields=ON, interactions=OFF,
+                                                                           constraints=OFF,
+                                                                           engineeringFeatures=OFF)
+                mdb.models['Model-1'].loads['Load-1'].suppress()
+                mdb.models['Model-1'].loads['Load-2'].suppress()
+                mdb.models['Model-1'].loads['Load-7'].suppress()
+                mdb.models['Model-1'].loads['Load-8'].suppress()
+                mdb.models['Model-1'].loads['Load-9'].suppress()
+                mdb.models['Model-1'].loads['Load-10'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-1'].suppress()
+
+        if loadcase == 'shear':
+            if axis == 'y':
+                mdb.models['Model-1'].constraints['Constraint-9'].suppress()
+                session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
+                                                                           predefinedFields=ON, interactions=OFF,
+                                                                           constraints=OFF,
+                                                                           engineeringFeatures=OFF)
+                mdb.models['Model-1'].loads['Load-1'].suppress()
+                mdb.models['Model-1'].loads['Load-3'].suppress()
+                mdb.models['Model-1'].loads['Load-4'].suppress()
+                mdb.models['Model-1'].loads['Load-5'].suppress()
+                mdb.models['Model-1'].loads['Load-6'].suppress()
+                mdb.models['Model-1'].loads['Load-7'].suppress()
+                mdb.models['Model-1'].loads['Load-8'].suppress()
+                mdb.models['Model-1'].loads['Load-9'].suppress()
+                mdb.models['Model-1'].loads['Load-10'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-2'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-4'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-5'].suppress()
+
+            if axis == 'x':
+                mdb.models['Model-1'].constraints['Constraint-1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-4'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-5'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-6'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-7'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-8'].suppress()
+                session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
+                                                                           predefinedFields=ON, interactions=OFF,
+                                                                           constraints=OFF,
+                                                                           engineeringFeatures=OFF)
+                mdb.models['Model-1'].loads['Load-1'].suppress()
+                mdb.models['Model-1'].loads['Load-2'].suppress()
+                mdb.models['Model-1'].loads['Load-3'].suppress()
+                mdb.models['Model-1'].loads['Load-4'].suppress()
+                mdb.models['Model-1'].loads['Load-5'].suppress()
+                mdb.models['Model-1'].loads['Load-6'].suppress()
+                mdb.models['Model-1'].boundaryConditions['BC-1'].suppress()
+
+
+    if structure == 'f':
+        pass
+    if structure == 'g':
+        pass
+    if structure == 'h':
+        pass
+    if structure == 'i':
+        pass
+    if structure == 'j':
+        pass
+    if structure == 'k':
+        pass
 
 if __name__ == "__main__":
     main()

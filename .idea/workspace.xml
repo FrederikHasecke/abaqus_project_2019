@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1ed11ddd-8e3b-410f-9651-4bcacb35dc33" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utilities/shapeSquare.py" beforeDir="false" afterPath="$PROJECT_DIR$/utilities/shapeSquare.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -12,16 +12,33 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="573">
-              <caret line="962" column="78" lean-forward="true" selection-start-line="962" selection-start-column="78" selection-end-line="962" selection-end-column="78" />
+            <state relative-caret-position="434">
+              <caret line="1919" lean-forward="true" selection-start-line="1919" selection-end-line="1919" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
-                <element signature="e#2367#2896#0" />
-                <element signature="e#4125#75526#0" />
+                <element signature="e#3020#3549#0" />
+                <element signature="e#3590#4526#0" />
+                <element signature="e#4571#63526#0" />
+                <element signature="e#6507#9813#0" />
+                <element signature="e#9848#13621#0" />
+                <element signature="e#13656#17182#0" />
+                <element signature="e#17217#28090#0" />
+                <element signature="e#28126#38466#0" />
+                <element signature="e#38502#45229#0" />
+                <element signature="e#45262#64537#0" />
+                <element signature="e#57745#62844#0" />
+                <element signature="e#63259#63526#0" />
+                <element signature="e#101946#103288#0" />
+                <element signature="e#65262#65822#0" />
+                <element signature="e#65871#78889#0" />
+                <element signature="e#79005#81691#0" />
+                <element signature="e#81720#81852#0" />
+                <element signature="e#81881#82055#0" />
+                <element signature="e#82080#82163#0" />
               </folding>
             </state>
           </provider>
@@ -31,7 +48,7 @@
         <entry file="file://$PROJECT_DIR$/utilities/shapeSquare.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="17">
-              <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
+              <caret line="1" column="8" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -75,6 +92,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -91,7 +109,6 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -126,13 +143,9 @@
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Favorites" side_tool="true" />
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24973656" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
-      <window_info anchor="bottom" id="Version Control" />
-      <window_info anchor="bottom" id="Python Console" />
-      <window_info anchor="bottom" id="Terminal" />
-      <window_info anchor="bottom" id="Event Log" side_tool="true" />
+      <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
@@ -140,6 +153,10 @@
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Version Control" order="7" />
+      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
+      <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -149,29 +166,40 @@
     <entry file="file://$PROJECT_DIR$/utilities/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/utilities/square.py">
+    <entry file="file://$PROJECT_DIR$/utilities/square.py" />
+    <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="9" selection-start-column="9" selection-end-column="9" />
+        <state relative-caret-position="434">
+          <caret line="1919" lean-forward="true" selection-start-line="1919" selection-end-line="1919" />
+          <folding>
+            <element signature="e#0#20#0" expanded="true" />
+            <element signature="e#3020#3549#0" />
+            <element signature="e#3590#4526#0" />
+            <element signature="e#4571#63526#0" />
+            <element signature="e#6507#9813#0" />
+            <element signature="e#9848#13621#0" />
+            <element signature="e#13656#17182#0" />
+            <element signature="e#17217#28090#0" />
+            <element signature="e#28126#38466#0" />
+            <element signature="e#38502#45229#0" />
+            <element signature="e#45262#64537#0" />
+            <element signature="e#57745#62844#0" />
+            <element signature="e#63259#63526#0" />
+            <element signature="e#101946#103288#0" />
+            <element signature="e#65262#65822#0" />
+            <element signature="e#65871#78889#0" />
+            <element signature="e#79005#81691#0" />
+            <element signature="e#81720#81852#0" />
+            <element signature="e#81881#82055#0" />
+            <element signature="e#82080#82163#0" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/utilities/shapeSquare.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
-          <caret line="1" column="8" lean-forward="true" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="573">
-          <caret line="962" column="78" lean-forward="true" selection-start-line="962" selection-start-column="78" selection-end-line="962" selection-end-column="78" />
-          <folding>
-            <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#2367#2896#0" />
-            <element signature="e#4125#75526#0" />
-          </folding>
+          <caret line="1" column="8" selection-start-line="1" selection-start-column="8" selection-end-line="1" selection-end-column="8" />
         </state>
       </provider>
     </entry>
