@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="1ed11ddd-8e3b-410f-9651-4bcacb35dc33" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -16,26 +15,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="301">
-              <caret line="1734" column="46" lean-forward="true" selection-start-line="1734" selection-start-column="46" selection-end-line="1734" selection-end-column="46" />
+            <state relative-caret-position="650">
+              <caret line="1968" column="75" lean-forward="true" selection-start-line="1968" selection-start-column="75" selection-end-line="1968" selection-end-column="75" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
-                <element signature="e#4848#102195#0" />
-                <element signature="e#6790#10096#0" />
-                <element signature="e#10131#13904#0" />
-                <element signature="e#13939#17465#0" />
-                <element signature="e#17500#31881#0" />
-                <element signature="e#102225#103650#0" />
-                <element signature="e#103727#104287#0" />
-                <element signature="e#104336#117371#0" />
-                <element signature="e#117487#120173#0" />
-                <element signature="e#120202#120334#0" />
-                <element signature="e#120363#120537#0" />
-                <element signature="e#120562#120645#0" />
-                <element signature="e#120685#120981#0" />
-                <element signature="e#121234#138560#0" />
-                <element signature="e#138716#155483#0" />
-                <element signature="e#155715#157037#0" />
               </folding>
             </state>
           </provider>
@@ -94,7 +77,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -111,6 +93,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -143,6 +126,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24973656" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -170,26 +154,10 @@
     <entry file="file://$PROJECT_DIR$/utilities/square.py" />
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="301">
-          <caret line="1734" column="46" lean-forward="true" selection-start-line="1734" selection-start-column="46" selection-end-line="1734" selection-end-column="46" />
+        <state relative-caret-position="650">
+          <caret line="1968" column="75" lean-forward="true" selection-start-line="1968" selection-start-column="75" selection-end-line="1968" selection-end-column="75" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
-            <element signature="e#4848#102195#0" />
-            <element signature="e#6790#10096#0" />
-            <element signature="e#10131#13904#0" />
-            <element signature="e#13939#17465#0" />
-            <element signature="e#17500#31881#0" />
-            <element signature="e#102225#103650#0" />
-            <element signature="e#103727#104287#0" />
-            <element signature="e#104336#117371#0" />
-            <element signature="e#117487#120173#0" />
-            <element signature="e#120202#120334#0" />
-            <element signature="e#120363#120537#0" />
-            <element signature="e#120562#120645#0" />
-            <element signature="e#120685#120981#0" />
-            <element signature="e#121234#138560#0" />
-            <element signature="e#138716#155483#0" />
-            <element signature="e#155715#157037#0" />
           </folding>
         </state>
       </provider>
