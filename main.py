@@ -158,6 +158,7 @@ def create_structure(structure, edge):
     # The created points get multiplied by the user-selected edge length to scale the lattice accordingly
     # In a second run the Oblique Dimension Restrain gets scaled to the proper value as well.
 
+    # Square
     if structure == 'a':
         s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                      sheetSize=edge * 2)
@@ -187,6 +188,7 @@ def create_structure(structure, edge):
         del mdb.models['Model-1'].sketches['__profile__']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
 
+    # Honeycomb
     if structure == 'b':
         session.viewports['Viewport: 1'].setValues(displayedObject=None)
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
@@ -244,6 +246,7 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
+    # Triangular
     if structure == 'c':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -301,6 +304,7 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
+    # CaVo
     if structure == 'd':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -356,6 +360,7 @@ def create_structure(structure, edge):
         p = mdb.models['Model-1'].parts['Part-1']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
 
+    # Star
     if structure == 'e':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -517,6 +522,7 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
+    # SrCuBO
     if structure == 'f':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -653,6 +659,7 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
+    # Kagome
     if structure == 'g':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -893,15 +900,16 @@ def create_structure(structure, edge):
                                                                 edge * 23.5657157897949), value=90.0)
         s.ObliqueDimension(vertex1=v[76], vertex2=v[77], textPoint=(edge * 46.2294464111328,
                                                                     edge * 23.3127708435059), value=edge * 0.5)
-        p = mdb.models['Model-1'].Part(name='Part_1',
+        p = mdb.models['Model-1'].Part(name='Part-1',
                                        dimensionality=TWO_D_PLANAR, type=DEFORMABLE_BODY)
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         p.BaseWire(sketch=s)
         s.unsetPrimaryObject()
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
+    # Trellis
     if structure == 'i':
         s1 = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                               sheetSize=200.0)
@@ -989,6 +997,7 @@ def create_structure(structure, edge):
                         , buttons=(YES,))
         main()
 
+    # SHD
     if structure == 'k':
         s = mdb.models['Model-1'].ConstrainedSketch(name='__profile__',
                                                     sheetSize=200.0)
@@ -1706,21 +1715,21 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         session.viewports['Viewport: 1'].assemblyDisplay.meshOptions.setValues(
             meshTechnique=OFF)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#10 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
                                                 region=region, cf1=1000.0, distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#10 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
                                                 region=region, cf2=1000.0, distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#8 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].DisplacementBC(name='BC-1', createStepName='Step-1',
@@ -1730,8 +1739,9 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                                                                    predefinedFields=OFF, interactions=ON,
                                                                    constraints=ON,
                                                                    engineeringFeatures=ON)
-        mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1.L1',
-                                                                    2), (-1.0, 'Part-1.R1', 2), (-1.0, 'Part-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1-1.L1',
+                                                                    2), (-1.0, 'Part-1-1.R1', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
 
 
         if loadcase == 'uniaxial':
@@ -2054,10 +2064,6 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-3'].suppress()
                 mdb.models['Model-1'].loads['Load-4'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-4'].suppress()
-
-
-
-
 
     # CaVo
     if structure == 'd':
@@ -2614,8 +2620,6 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-4'].suppress()
 
-
-
     # Kagome
     if structure == 'g':
         p = mdb.models['Model-1'].parts['Part-1']
@@ -2794,70 +2798,70 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         a = mdb.models['Model-1'].rootAssembly
         session.viewports['Viewport: 1'].setValues(displayedObject=a)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#104 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
                                                 region=region, cf1=1000.0, distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#104 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
                                                 region=region, cf2=1000.0, distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#210009 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
                                                 region=region, cf1=1000.0, distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#210009 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
                                                 region=region, cf2=1000.0, distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#40000 ]',), )
         region = a.Set(vertices=verts1, name='Set-5')
         mdb.models['Model-1'].DisplacementBC(name='BC-1', createStepName='Step-1',
                                              region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#100000 ]',), )
         region = a.Set(vertices=verts1, name='Set-6')
         mdb.models['Model-1'].DisplacementBC(name='BC-2', createStepName='Step-1',
                                              region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#80000 ]',), )
         region = a.Set(vertices=verts1, name='Set-7')
         mdb.models['Model-1'].DisplacementBC(name='BC-3', createStepName='Step-1',
                                              region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#4000 ]',), )
         region = a.Set(vertices=verts1, name='Set-8')
         mdb.models['Model-1'].DisplacementBC(name='BC-4', createStepName='Step-1',
                                              region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#40 ]',), )
         region = a.Set(vertices=verts1, name='Set-9')
         mdb.models['Model-1'].DisplacementBC(name='BC-5', createStepName='Step-1',
                                              region=region, u1=0.0, u2=0.0, ur3=0.0, amplitude=UNSET, fixed=OFF,
                                              distributionType=UNIFORM, fieldName='', localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
-        v1 = a.instances['Part-1'].vertices
+        v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#8000 ]',), )
         region = a.Set(vertices=verts1, name='Set-10')
         mdb.models['Model-1'].DisplacementBC(name='BC-6', createStepName='Step-1',
@@ -2867,53 +2871,53 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                                                                    predefinedFields=OFF, interactions=ON,
                                                                    constraints=ON,
                                                                    engineeringFeatures=ON)
-        p1 = mdb.models['Model-1'].parts['Part_1']
+        p1 = mdb.models['Model-1'].parts['Part-1']
         session.viewports['Viewport: 1'].setValues(displayedObject=p1)
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#8000 ]',), )
         p.Set(vertices=verts, name='L1')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#40 ]',), )
         p.Set(vertices=verts, name='L2')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#4000 ]',), )
         p.Set(vertices=verts, name='L3')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#80000 ]',), )
         p.Set(vertices=verts, name='L4')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#1 ]',), )
         p.Set(vertices=verts, name='R1')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#8 ]',), )
         p.Set(vertices=verts, name='R2')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#10000 ]',), )
         p.Set(vertices=verts, name='R3')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#200000 ]',), )
         p.Set(vertices=verts, name='R4')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#100 ]',), )
         p.Set(vertices=verts, name='T1')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#4 ]',), )
         p.Set(vertices=verts, name='T2')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#40000 ]',), )
         p.Set(vertices=verts, name='B1')
-        p = mdb.models['Model-1'].parts['Part_1']
+        p = mdb.models['Model-1'].parts['Part-1']
         v = p.vertices
         verts = v.getSequenceFromMask(mask=('[#100000 ]',), )
         p.Set(vertices=verts, name='B2')
@@ -2921,24 +2925,24 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         a1.regenerate()
         a = mdb.models['Model-1'].rootAssembly
         session.viewports['Viewport: 1'].setValues(displayedObject=a)
-        mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1.L1',
-                                                                    2), (-1.0, 'Part-1.R1', 2),
-                                                                   (-1.0, 'Part-1.B1', 2)))
-        mdb.models['Model-1'].Equation(name='Constraint-2', terms=((1.0, 'Part-1.L2',
-                                                                    2), (-1.0, 'Part-1.R2', 2),
-                                                                   (-1.0, 'Part-1.B1', 2)))
-        mdb.models['Model-1'].Equation(name='Constraint-3', terms=((1.0, 'Part-1.L3',
-                                                                    2), (-1.0, 'Part-1.R3', 2),
-                                                                   (-1.0, 'Part-1.B1', 2)))
-        mdb.models['Model-1'].Equation(name='Constraint-4', terms=((1.0, 'Part-1.L4',
-                                                                    2), (-1.0, 'Part-1.R4', 2),
-                                                                   (-1.0, 'Part-1.B1', 2)))
-        mdb.models['Model-1'].Equation(name='Constraint-5', terms=((1.0, 'Part-1.B1',
-                                                                    1), (-1.0, 'Part-1.T1', 1),
-                                                                   (-1.0, 'Part-1.L3', 1)))
-        mdb.models['Model-1'].Equation(name='Constraint-6', terms=((1.0, 'Part-1.B2',
-                                                                    1), (-1.0, 'Part-1.T2', 1),
-                                                                   (-1.0, 'Part-1.L3', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1-1.L1',
+                                                                    2), (-1.0, 'Part-1-1.R1', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-2', terms=((1.0, 'Part-1-1.L2',
+                                                                    2), (-1.0, 'Part-1-1.R2', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-3', terms=((1.0, 'Part-1-1.L3',
+                                                                    2), (-1.0, 'Part-1-1.R3', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-4', terms=((1.0, 'Part-1-1.L4',
+                                                                    2), (-1.0, 'Part-1-1.R4', 2),
+                                                                   (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-5', terms=((1.0, 'Part-1-1.B1',
+                                                                    1), (-1.0, 'Part-1-1.T1', 1),
+                                                                   (-1.0, 'Part-1-1.L3', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-6', terms=((1.0, 'Part-1-1.B2',
+                                                                    1), (-1.0, 'Part-1-1.T2', 1),
+                                                                   (-1.0, 'Part-1-1.L3', 1)))
 
         if loadcase == 'uniaxial':
             if axis == 'y':
@@ -3498,6 +3502,8 @@ def run_analysis(workdir):
 
     while not os.path.exists(str(workdir)+'/Job-'+str(job_number)+'.odb'):
         time.sleep(1)
+
+    time.sleep(3)
 
     execution = 0
     while execution == 0:
