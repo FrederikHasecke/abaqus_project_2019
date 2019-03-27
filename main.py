@@ -76,12 +76,12 @@ def main():
     create_assembly()
 
     # Create the step module
-    create_step()
+    create_step(model)
 
     # Fifth User Input:
     # Loading Conditions.
     # The User can choose between uniaxial and shear forces as well as decide the provided force and axis
-    force, loadcase, axis = select_boundary_conditions()
+    force, loadcase, axis = select_boundary_conditions(model)
 
     # Create the Boundary conditions for the user
     # This includes:
@@ -106,7 +106,7 @@ def new_start():
 def select_structure():
     possible_structures = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k']
     structure = str(getInput("Please choose one of the 11 Structures presented in the attached documentation."
-                             " [Choose from a to k] excluding 'j'", "a"))
+                             " [Choose from a to k] excluding 'j'", "g"))
 
     if structure in possible_structures:
         pass
@@ -1291,7 +1291,6 @@ def create_structure(structure, edge):
         session.viewports['Viewport: 1'].setValues(displayedObject=p)
         del mdb.models['Model-1'].sketches['__profile__']
 
-
 '''
 The material selection is pretty straight forward. The user can choose between linear and nonlinear
 materials using either:
@@ -1318,7 +1317,7 @@ def select_material():
     # Query the user
     model = str(getInput("You can choose from the following material models\n"
                                "'linear', 'nonlinear'\n"
-                               "Please enter the desired material model: ", "linear")).lower()
+                               "Please enter the desired material model: ", "nonlinear")).lower()
 
     # Query the user for additional information regarding the material
     # Offers values for quick tries
@@ -1338,7 +1337,6 @@ def select_material():
         section = select_material()
 
     return model, young_modulus, poisson_rate, c10, c01, d1
-
 
 '''
 This function assigns the selected model to the previously built structure
@@ -1663,17 +1661,24 @@ def create_assembly():
     p = mdb.models['Model-1'].parts['Part-1']
     a.Instance(name='Part-1-1', part=p, dependent=ON)
 
-# Self explanatory
-def create_step():
-    mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial', initialInc=0.1)
+# The Step size for the non linear model needs a smaller initial step size if the loads get high
+def create_step(model):
+    if model == 'linear':
+        mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial', initialInc=0.1)
+    if model == 'nonlinear':
+        mdb.models['Model-1'].StaticStep(name='Step-1', previous='Initial', initialInc=0.001, minInc=1e-09)
+        mdb.models['Model-1'].steps['Step-1'].setValues(nlgeom=ON)
 
 '''
 The user can select the load cases.
 He/she can choose the axis of the force and the stress (uniaxial / shear)
 Additionally the User can specify the Force
 '''
-def select_boundary_conditions():
-    fields = (('Force [N]:', '1000'), ('Loadcase [uniaxial/shear]:', 'uniaxial'), ('Axis [x/y]:', 'x'))
+def select_boundary_conditions(model):
+    if model == 'linear':
+        fields = (('Force [N]:', '1000'), ('Loadcase [uniaxial/shear]:', 'uniaxial'), ('Axis [x/y]:', 'x'))
+    if model == 'nonlinear':
+        fields = (('Force [N]:', '1'), ('Loadcase [uniaxial/shear]:', 'uniaxial'), ('Axis [x/y]:', 'x'))
     force, loadcase, axis = getInputs(fields=fields, label='Specify Loading Conditions:',
                                          dialogTitle='Create Loadcase', )
 
@@ -1719,14 +1724,14 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#10 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#10 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -1766,14 +1771,14 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#1 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=-float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#1 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -1787,14 +1792,14 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#18 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
-                                                region=region, cf1=-1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=-float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#18 ]',), )
         region = a.Set(vertices=verts1, name='Set-5')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -1854,8 +1859,20 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         mdb.models['Model-1'].Equation(name='Constraint-2', terms=((1.0, 'Part-1-1.L2',
                                                                     2), (-1.0, 'Part-1-1.R2', 2),
                                                                    (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-1-Copy', terms=((1.0, 'Part-1-1.L1',
+                                                                    1), (-1.0, 'Part-1-1.R1', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-2-Copy', terms=((1.0, 'Part-1-1.L2',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
         mdb.models['Model-1'].Equation(name='Constraint-3', terms=((1.0, 'Part-1-1.T1',
                                                                     1), (-1.0, 'Part-1-1.B1', 1),
+                                                                   (-1.0, 'Part-1-1.R1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-3-Copy', terms=((1.0, 'Part-1-1.T1',
+                                                                    2), (-1.0, 'Part-1-1.B1', 2),
+                                                                   (-1.0, 'Part-1-1.R1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-shear-y', terms=((1.0, 'Part-1-1.L1',
+                                                                    1), (-1.0, 'Part-1-1.L2', 1),
                                                                    (-1.0, 'Part-1-1.R1', 1)))
 
 
@@ -1871,10 +1888,17 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-4'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-2'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y'].suppress()
 
             if axis == 'x':
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-2'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3-Copy'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -1884,6 +1908,7 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-4'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-1'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-3'].setValues(u2=UNSET, ur3=UNSET)
+                mdb.models['Model-1'].constraints['Constraint-shear-y'].suppress()
 
         if loadcase == 'shear':
             if axis == 'y':
@@ -1897,6 +1922,8 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-2'].suppress()
                 mdb.models['Model-1'].loads['Load-3'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
 
             if axis == 'x':
                 mdb.models['Model-1'].constraints['Constraint-3'].suppress()
@@ -1909,6 +1936,8 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-4'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-2'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y'].suppress()
 
     # Triangular
     if structure == 'c':
@@ -1951,28 +1980,28 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#20 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#20 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=-1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=-float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#11 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#11 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
-                                                region=region, cf2=-1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=-float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -2009,14 +2038,33 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1-1.L1',
                                                                     2), (-1.0, 'Part-1-1.R1', 2),
                                                                    (-1.0, 'Part-1-1.T2', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-1-Copy', terms=((1.0, 'Part-1-1.L1',
+                                                                    1), (-1.0, 'Part-1-1.R1', 1),
+                                                                   (-1.0, 'Part-1-1.T2', 1)))
         mdb.models['Model-1'].Equation(name='Constraint-2', terms=((1.0, 'Part-1-1.T2',
                                                                     1), (-1.0, 'Part-1-1.B1', 1),
                                                                    (-1.0, 'Part-1-1.L1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-2-Copy', terms=((1.0, 'Part-1-1.T2',
+                                                                    2), (-1.0, 'Part-1-1.B1', 2),
+                                                                   (-1.0, 'Part-1-1.L1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-y-L', terms=((1.0, 'Part-1-1.T1',
+                                                                    1), (-1.0, 'Part-1-1.L1', 1),
+                                                                   (-1.0, 'Part-1-1.T2', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-y-R', terms=((1.0, 'Part-1-1.T3',
+                                                                    1), (-1.0, 'Part-1-1.R1', 1),
+                                                                   (-1.0, 'Part-1-1.T2', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-shear-y', terms=((1.0, 'Part-1-1.T3',
+                                                                    2), (-1.0, 'Part-1-1.R1', 2),
+                                                                   (-1.0, 'Part-1-1.L1', 2)))
+
 
         if loadcase == 'uniaxial':
             if axis == 'y':
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-2'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2030,6 +2078,8 @@ def create_boundary_conditions(structure, force, loadcase, axis):
 
             if axis == 'x':
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2040,10 +2090,14 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].boundaryConditions['BC-1'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-2'].setValues(u2=UNSET, ur3=UNSET)
                 mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y'].suppress()
 
         if loadcase == 'shear':
             if axis == 'y':
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2053,9 +2107,13 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-3'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-1'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R'].suppress()
+
 
             if axis == 'x':
                 mdb.models['Model-1'].constraints['Constraint-2'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2064,6 +2122,9 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].loads['Load-3'].suppress()
                 mdb.models['Model-1'].loads['Load-4'].suppress()
                 mdb.models['Model-1'].boundaryConditions['BC-4'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y'].suppress()
 
     # CaVo
     if structure == 'd':
@@ -2106,14 +2167,14 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#20 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#20 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -2281,28 +2342,28 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#100 ]',), )
         region = a.Set(vertices=verts1, name='Set-12')
         mdb.models['Model-1'].ConcentratedForce(name='Load-7', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#200 ]',), )
         region = a.Set(vertices=verts1, name='Set-13')
         mdb.models['Model-1'].ConcentratedForce(name='Load-8', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#400 ]',), )
         region = a.Set(vertices=verts1, name='Set-14')
         mdb.models['Model-1'].ConcentratedForce(name='Load-9', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#1000 ]',), )
         region = a.Set(vertices=verts1, name='Set-15')
         mdb.models['Model-1'].ConcentratedForce(name='Load-10',
-                                                createStepName='Step-1', region=region, cf2=1000.0,
+                                                createStepName='Step-1', region=region, cf2=float(force),
                                                 distributionType=UNIFORM, field='', localCsys=None)
         mdb.models['Model-1'].Equation(name='Constraint-1', terms=((1.0, 'Part-1-1.L1',
                                                                     1), (-1.0, 'Part-1-1.R1', 1),
@@ -2468,28 +2529,28 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#6080 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#6080 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#9400 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#9400 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -2667,28 +2728,28 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#40 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#40 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#e00 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#e00 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -2731,16 +2792,48 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         mdb.models['Model-1'].Equation(name='Constraint-3', terms=((1.0, 'Part-1-1.L3',
                                                                     2), (-1.0, 'Part-1-1.R3', 2),
                                                                    (-1.0, 'Part-1-1.B1', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-1-Copy', terms=((1.0, 'Part-1-1.L1',
+                                                                    1), (-1.0, 'Part-1-1.R1', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-2-Copy', terms=((1.0, 'Part-1-1.L2',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-3-Copy', terms=((1.0, 'Part-1-1.L3',
+                                                                    1), (-1.0, 'Part-1-1.R3', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
         mdb.models['Model-1'].Equation(name='Constraint-4', terms=((1.0, 'Part-1-1.B1',
                                                                     1), (-1.0, 'Part-1-1.T1', 1),
                                                                    (-1.0, 'Part-1-1.L2', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-y-L1', terms=((1.0, 'Part-1-1.L1',
+                                                                    1), (-1.0, 'Part-1-1.L2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-y-L3', terms=((1.0, 'Part-1-1.L3',
+                                                                    1), (-1.0, 'Part-1-1.L2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-y-R1', terms=((1.0, 'Part-1-1.R1',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-y-R3', terms=((1.0, 'Part-1-1.R3',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.B1', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-shear-y-R1', terms=((1.0, 'Part-1-1.R1',
+                                                                    2), (-1.0, 'Part-1-1.R2', 2),
+                                                                   (-1.0, 'Part-1-1.L2', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-shear-y-R3', terms=((1.0, 'Part-1-1.R3',
+                                                                    2), (-1.0, 'Part-1-1.R2', 2),
+                                                                   (-1.0, 'Part-1-1.L2', 2)))
 
         if loadcase == 'uniaxial':
             if axis == 'y':
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-2'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3-Copy'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-4'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2756,7 +2849,16 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-2'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3-Copy'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-4'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2771,6 +2873,13 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].constraints['Constraint-1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-2'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-1-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-2-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-3-Copy'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2782,6 +2891,12 @@ def create_boundary_conditions(structure, force, loadcase, axis):
 
             if axis == 'x':
                 mdb.models['Model-1'].constraints['Constraint-4'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-L3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-y-R3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-shear-y-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2802,28 +2917,28 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#104 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#104 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#210009 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#210009 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
@@ -3011,7 +3126,6 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                                                                            predefinedFields=OFF, interactions=ON,
                                                                            constraints=ON,
                                                                            engineeringFeatures=ON)
-
 
     # Trellis
     if structure == 'i':
@@ -3322,28 +3436,28 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         verts1 = v1.getSequenceFromMask(mask=('[#40000000 #2 ]',), )
         region = a.Set(vertices=verts1, name='Set-1')
         mdb.models['Model-1'].ConcentratedForce(name='Load-1', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#40000000 #2 ]',), )
         region = a.Set(vertices=verts1, name='Set-2')
         mdb.models['Model-1'].ConcentratedForce(name='Load-2', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#22020004 ]',), )
         region = a.Set(vertices=verts1, name='Set-3')
         mdb.models['Model-1'].ConcentratedForce(name='Load-3', createStepName='Step-1',
-                                                region=region, cf1=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf1=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
         verts1 = v1.getSequenceFromMask(mask=('[#22020004 ]',), )
         region = a.Set(vertices=verts1, name='Set-4')
         mdb.models['Model-1'].ConcentratedForce(name='Load-4', createStepName='Step-1',
-                                                region=region, cf2=1000.0, distributionType=UNIFORM, field='',
+                                                region=region, cf2=float(force), distributionType=UNIFORM, field='',
                                                 localCsys=None)
         a = mdb.models['Model-1'].rootAssembly
         v1 = a.instances['Part-1-1'].vertices
