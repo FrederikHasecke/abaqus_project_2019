@@ -2822,6 +2822,12 @@ def create_boundary_conditions(structure, force, loadcase, axis):
         mdb.models['Model-1'].Equation(name='Constraint-shear-y-R3', terms=((1.0, 'Part-1-1.R3',
                                                                     2), (-1.0, 'Part-1-1.R2', 2),
                                                                    (-1.0, 'Part-1-1.L2', 2)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-x-R1', terms=((1.0, 'Part-1-1.R1',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.L2', 1)))
+        mdb.models['Model-1'].Equation(name='Constraint-uni-x-R3', terms=((1.0, 'Part-1-1.R3',
+                                                                    1), (-1.0, 'Part-1-1.R2', 1),
+                                                                   (-1.0, 'Part-1-1.L2', 1)))
 
         if loadcase == 'uniaxial':
             if axis == 'y':
@@ -2834,6 +2840,8 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].constraints['Constraint-4'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-shear-y-R1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-shear-y-R3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-x-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-x-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2880,6 +2888,8 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].constraints['Constraint-uni-y-L3'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-uni-y-R1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-uni-y-R3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-x-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-x-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,
@@ -2897,6 +2907,8 @@ def create_boundary_conditions(structure, force, loadcase, axis):
                 mdb.models['Model-1'].constraints['Constraint-uni-y-R3'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-shear-y-R1'].suppress()
                 mdb.models['Model-1'].constraints['Constraint-shear-y-R3'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-x-R1'].suppress()
+                mdb.models['Model-1'].constraints['Constraint-uni-x-R3'].suppress()
                 session.viewports['Viewport: 1'].assemblyDisplay.setValues(loads=ON, bcs=ON,
                                                                            predefinedFields=ON, interactions=OFF,
                                                                            constraints=OFF,

@@ -15,7 +15,7 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1219">
+            <state relative-caret-position="408">
               <caret line="108" column="70" selection-start-line="108" selection-start-column="70" selection-end-line="108" selection-end-column="70" />
               <folding>
                 <element signature="e#0#20#0" expanded="true" />
@@ -37,7 +37,6 @@
                 <element signature="e#73396#73663#0" />
                 <element signature="e#73698#100483#0" />
                 <element signature="e#100486#100998#1" />
-                <element signature="e#101027#102452#0" />
                 <element signature="e#102455#102643#1" />
                 <element signature="e#102719#103279#0" />
                 <element signature="e#103281#103746#1" />
@@ -50,11 +49,11 @@
                 <element signature="e#120272#120433#1" />
                 <element signature="e#120772#121063#1" />
                 <element signature="e#121177#125389#0" />
+                <element signature="e#126150#137928#0" />
                 <element signature="e#137616#150443#0" />
                 <element signature="e#145473#150516#0" />
                 <element signature="e#150562#167888#0" />
                 <element signature="e#167936#181432#0" />
-                <element signature="e#181482#192832#0" />
                 <element signature="e#193085#197932#0" />
                 <element signature="e#207209#223976#0" />
                 <element signature="e#224070#238883#0" />
@@ -108,8 +107,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="1857" />
-    <option name="y" value="170" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
     <option name="width" value="1167" />
     <option name="height" value="865" />
   </component>
@@ -166,10 +165,10 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1912" y="172" width="1616" height="916" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.30038023" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24973656" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -195,7 +194,7 @@
     <entry file="file://$PROJECT_DIR$/utilities/square.py" />
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1219">
+        <state relative-caret-position="408">
           <caret line="108" column="70" selection-start-line="108" selection-start-column="70" selection-end-line="108" selection-end-column="70" />
           <folding>
             <element signature="e#0#20#0" expanded="true" />
@@ -217,7 +216,6 @@
             <element signature="e#73396#73663#0" />
             <element signature="e#73698#100483#0" />
             <element signature="e#100486#100998#1" />
-            <element signature="e#101027#102452#0" />
             <element signature="e#102455#102643#1" />
             <element signature="e#102719#103279#0" />
             <element signature="e#103281#103746#1" />
@@ -230,11 +228,11 @@
             <element signature="e#120272#120433#1" />
             <element signature="e#120772#121063#1" />
             <element signature="e#121177#125389#0" />
+            <element signature="e#126150#137928#0" />
             <element signature="e#137616#150443#0" />
             <element signature="e#145473#150516#0" />
             <element signature="e#150562#167888#0" />
             <element signature="e#167936#181432#0" />
-            <element signature="e#181482#192832#0" />
             <element signature="e#193085#197932#0" />
             <element signature="e#207209#223976#0" />
             <element signature="e#224070#238883#0" />
